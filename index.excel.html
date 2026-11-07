@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b5d36">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CélulaZero">
+<meta name="description" content="Aprenda Excel passo a passo, do zero ao PROCV, com uma planilha interativa.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>CélulaZero — Aprenda Excel</title>
+<style>
+:root{
+  --g1:#0b5d36;--g2:#107c41;--g3:#21a366;--g4:#33c481;
+  --bg:#f3f7f4;--card:#ffffff;--ink:#13221a;--mut:#5f7268;--line:#dbe5df;
+  --grid:#e2e9e4;--hdr:#eef3f0;--hdrOn:#cfe8da;--hl:#fff6cf;--err:#c62828;
+  --okbg:#e5f6ec;--nobg:#fdeaea;--shadow:0 6px 24px rgba(11,93,54,.10);
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sb:env(safe-area-inset-bottom,0px);--st:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0d1612;--card:#15211b;--ink:#e6efe9;--mut:#93a89c;--line:#26362d;
+  --grid:#223129;--hdr:#1b2a22;--hdrOn:#1f4a33;--hl:#3a3415;--okbg:#173a27;--nobg:#3c1d1d;
+  --shadow:0 6px 24px rgba(0,0,0,.35);
+}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+code{font-family:var(--mono);font-size:.92em;background:var(--hdr);border:1px solid var(--line);padding:1px 6px;border-radius:6px;white-space:nowrap;color:var(--g2)}
+@media (prefers-color-scheme:dark){code{color:var(--g4)}}
+.screen{display:none;min-height:100dvh}
+.screen.on{display:block}
+
+/* ---------- SPLASH ---------- */
+#splash{position:fixed;inset:0;z-index:200;background:radial-gradient(circle at 50% 42%,#14904f 0%,#0b5d36 45%,#052a18 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .6s ease,transform .6s ease}
+#splash.out{opacity:0;transform:scale(1.06);pointer-events:none}
+.sp-grid{position:absolute;inset:0;display:grid;gap:1px;grid-auto-rows:29px;align-content:start}
+.sp-grid i{border:1px solid rgba(255,255,255,.05);font:600 10px var(--mono);color:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-style:normal;animation:wave 2.6s ease-in-out infinite;animation-delay:var(--d)}
+@keyframes wave{0%,100%{background:transparent}35%{background:rgba(51,196,129,.28)}55%{background:transparent}}
+.sp-center{position:relative;text-align:center;color:#fff;padding:20px}
+.sp-logo{width:112px;height:112px;margin:0 auto 18px;filter:drop-shadow(0 18px 40px rgba(0,0,0,.45));animation:pop .8s cubic-bezier(.2,1.6,.4,1) both .15s}
+.sp-title{font-size:30px;font-weight:800;letter-spacing:-.5px;margin:0 0 18px;animation:fadeUp .6s both .45s}
+.sp-title span{color:#8ff0bd}
+.sp-cell{display:inline-block;text-align:left;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.16);border-radius:12px;overflow:hidden;min-width:260px;animation:fadeUp .6s both .6s}
+.sp-fx{display:flex;align-items:center;gap:8px;padding:9px 12px;font:15px var(--mono);border-bottom:1px solid rgba(255,255,255,.12)}
+.sp-fx b{font-style:italic;color:#8ff0bd;font-weight:700}
+.caret{display:inline-block;width:2px;height:18px;background:#8ff0bd;animation:blink .8s steps(1) infinite;vertical-align:middle;margin-left:1px}
+.sp-res{padding:10px 12px;font-weight:800;font-size:18px;opacity:0;transform:translateY(6px);transition:.35s;display:flex;justify-content:space-between;gap:12px}
+.sp-res small{font:600 11px var(--mono);opacity:.6;align-self:center}
+.sp-res.on{opacity:1;transform:none}
+.sp-skip{position:absolute;bottom:calc(22px + var(--sb));left:0;right:0;text-align:center;color:rgba(255,255,255,.45);font-size:12px}
+@keyframes pop{0%{transform:scale(.3) rotate(-12deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes fadeUp{0%{transform:translateY(14px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes blink{50%{opacity:0}}
+
+/* ---------- START ---------- */
+#start{background:linear-gradient(180deg,#0b5d36 0%,#107c41 46%,var(--bg) 46.1%)}
+.st-hero{position:relative;padding:calc(48px + var(--st)) 24px 30px;text-align:center;color:#fff;overflow:hidden;min-height:46dvh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.st-hero .lg{width:84px;height:84px;filter:drop-shadow(0 12px 26px rgba(0,0,0,.35));animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
+.st-hero h1{font-size:38px;margin:14px 0 6px;letter-spacing:-1px;font-weight:850}
+.st-hero h1 span{color:#8ff0bd}
+.st-hero p{margin:0;opacity:.9;font-size:16px;max-width:340px}
+.fcell{position:absolute;font:600 12px var(--mono);background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:6px 10px;border-radius:8px;color:#d8ffe9;white-space:nowrap;animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.st-card{position:relative;margin:-6px 18px 0;background:var(--card);border-radius:22px;padding:22px 20px 20px;box-shadow:var(--shadow);max-width:460px;margin-left:auto;margin-right:auto}
+.st-wrap{padding:0 18px calc(30px + var(--sb))}
+.st-card label{font-weight:700;font-size:14px;color:var(--mut)}
+.st-card input{width:100%;margin:8px 0 14px;font-size:17px;padding:14px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);outline:none}
+.st-card input:focus{border-color:var(--g3)}
+.primary{display:block;width:100%;padding:16px;border-radius:14px;background:linear-gradient(135deg,var(--g3),var(--g2));color:#fff;font-weight:800;font-size:17px;box-shadow:0 8px 20px rgba(16,124,65,.32);transition:transform .12s}
+.primary:active{transform:scale(.98)}
+.primary:disabled{opacity:.45;box-shadow:none}
+.feats{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
+.feats span{font-size:12.5px;background:var(--hdr);border:1px solid var(--line);padding:6px 10px;border-radius:99px;color:var(--mut)}
+
+/* ---------- HOME ---------- */
+.top{background:linear-gradient(140deg,#0b5d36,#14904f);color:#fff;padding:calc(18px + var(--st)) 20px 70px;border-radius:0 0 28px 28px;position:relative}
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.toprow .lg{width:34px;height:34px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+.xp{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);padding:6px 12px;border-radius:99px;font-weight:700;font-size:14px}
+.hi{margin:20px 0 2px;font-size:26px;font-weight:800;letter-spacing:-.4px}
+.hisub{opacity:.85;margin:0}
+.prog{margin:-52px 18px 0;background:var(--card);border-radius:20px;padding:16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px;position:relative}
+.ring{--p:0;width:66px;height:66px;border-radius:50%;flex:none;background:conic-gradient(var(--g3) calc(var(--p)*1%),var(--grid) 0);display:grid;place-items:center}
+.ring b{width:52px;height:52px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-size:15px}
+.cont{flex:1;text-align:left;background:var(--okbg);border-radius:14px;padding:11px 14px;display:flex;flex-direction:column;gap:2px}
+.cont small{color:var(--g2);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+@media (prefers-color-scheme:dark){.cont small{color:var(--g4)}}
+.cont b{font-size:16px}
+.wrap{padding:18px 18px calc(96px + var(--sb));max-width:720px;margin:0 auto}
+.mod{background:var(--card);border-radius:20px;margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
+.modh{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.modh .mi{font-size:24px;width:42px;height:42px;border-radius:12px;background:var(--hdr);display:grid;place-items:center}
+.modh small{display:block;color:var(--mut);font-size:12px;font-weight:600}
+.modh b{font-size:16.5px}
+.modh .mc{margin-left:auto;font-weight:700;color:var(--mut);font-size:13px}
+.les{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 16px;border-top:1px solid var(--line)}
+.les:first-of-type{border-top:0}
+.ld{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--hdr);color:var(--mut)}
+.les.open .ld{background:var(--g3);color:#fff;box-shadow:0 0 0 4px rgba(33,163,102,.18)}
+.les.done .ld{background:var(--g2);color:#fff}
+.les.lock{opacity:.5}
+.lt{flex:1;display:flex;flex-direction:column;min-width:0}
+.lt b{font-size:15px}
+.lt small{color:var(--mut);font-size:13px}
+.la{color:var(--mut);font-size:22px}
+.badge{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#ffe58a,#ffc94a);color:#4a3500;padding:14px 16px;border-radius:18px;margin-bottom:14px;font-weight:700}
+
+/* ---------- NAV ---------- */
+#nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:none;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(6px + var(--sb));justify-content:space-around}
+#nav.on{display:flex}
+#nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:11.5px;font-weight:600;color:var(--mut);border-radius:12px}
+#nav button span{font-size:21px;line-height:1}
+#nav button.on{color:var(--g2);background:var(--okbg)}
+@media (prefers-color-scheme:dark){#nav button.on{color:var(--g4)}}
+
+/* ---------- PAGE HEADER ---------- */
+.ph{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(14px + var(--st)) 18px 10px;display:flex;align-items:center;gap:10px}
+.ph h2{margin:0;font-size:22px;flex:1}
+.ph .sub{color:var(--mut);font-size:13px}
+.sbtn{padding:8px 12px;border-radius:10px;background:var(--hdr);border:1px solid var(--line);font-weight:600;font-size:13.5px}
+
+/* ---------- LESSON ---------- */
+.lhead{position:sticky;top:0;z-index:20;background:var(--bg);padding:calc(10px + var(--st)) 14px 10px;display:flex;align-items:center;gap:12px}
+.xbtn{width:38px;height:38px;border-radius:50%;background:var(--hdr);font-size:18px;flex:none;border:1px solid var(--line)}
+.lbar{flex:1;height:10px;border-radius:99px;background:var(--grid);overflow:hidden}
+.lbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--g4),var(--g2));border-radius:99px;transition:width .45s cubic-bezier(.3,.9,.3,1)}
+.ltitle{padding:0 18px;color:var(--mut);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.6px;max-width:760px;margin:0 auto}
+#lsBody{padding:10px 18px calc(110px + var(--sb));max-width:760px;margin:0 auto}
+#lsBody.anim>*{animation:fadeUp .35s both}
+.lfoot{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:12px 18px calc(12px + var(--sb));background:linear-gradient(180deg,transparent,var(--bg) 30%)}
+.lfoot .primary{max-width:724px;margin:0 auto}
+.stepc{background:var(--card);border-radius:22px;padding:26px 22px;box-shadow:var(--shadow);margin-top:8px}
+.se{font-size:46px;line-height:1;margin-bottom:12px}
+.sk{color:var(--g2);font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.6px}
+@media (prefers-color-scheme:dark){.sk{color:var(--g4)}}
+.stepc h2{margin:6px 0 10px;font-size:24px;letter-spacing:-.3px}
+.stepc p{margin:0;font-size:17px;line-height:1.6}
+.ex{margin-top:16px;background:var(--hdr);border:1px dashed var(--line);border-radius:14px;padding:12px 14px;font-size:15px;line-height:1.55}
+.tag{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.8px;color:#fff;background:var(--g2);padding:4px 9px;border-radius:7px;margin-bottom:8px}
+.task{background:var(--card);border-radius:20px;padding:16px;box-shadow:var(--shadow);margin:8px 0 12px}
+.task>p{margin:0 0 10px;font-size:15.5px;line-height:1.5}
+.goals{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.goals li{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.45;padding:8px 10px;border-radius:12px;background:var(--hdr);transition:background .3s}
+.goals li i{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none;display:grid;place-items:center;font-style:normal;font-size:13px;color:#fff;margin-top:1px;transition:.25s}
+.goals li.ok{background:var(--okbg)}
+.goals li.ok i{background:var(--g3);border-color:var(--g3)}
+.goals li.ok i::after{content:"✓";font-weight:900}
+.hint{margin-top:10px;padding:10px 12px;border-radius:12px;background:var(--hl);font-size:14.5px;line-height:1.5}
+.prow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.prow button{flex:1;min-width:96px;padding:10px;border-radius:12px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:14px}
+.quiz h2{font-size:21px;line-height:1.4;margin:4px 0 16px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;padding:14px;border-radius:14px;background:var(--card);border:2px solid var(--line);font-size:16px;box-shadow:var(--shadow);transition:.2s}
+.opt span{width:28px;height:28px;border-radius:8px;background:var(--hdr);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.opt.right{border-color:var(--g3);background:var(--okbg)}
+.opt.right span{background:var(--g3);color:#fff}
+.opt.wrong{border-color:var(--err);background:var(--nobg)}
+.opt.wrong span{background:var(--err);color:#fff}
+.qx{margin-top:14px;padding:12px 14px;border-radius:14px;font-size:15px;line-height:1.5}
+.qx.ok{background:var(--okbg)}.qx.no{background:var(--nobg)}
+.donec{text-align:center;padding:30px 10px}
+.trophy{font-size:84px;animation:pop .8s cubic-bezier(.2,1.6,.4,1) both}
+.donec h2{font-size:28px;margin:10px 0 4px}
+.donec p{color:var(--mut);margin:0 0 14px}
+.xpgain{display:inline-block;background:linear-gradient(135deg,#ffe58a,#ffc94a);color:#4a3500;font-weight:900;padding:8px 16px;border-radius:99px;font-size:18px;animation:pop .6s both .3s}
+.ghost{margin-top:18px;padding:12px 18px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-weight:700}
+.conf{position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden}
+.conf i{position:absolute;top:-20px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+/* ---------- SHEET ---------- */
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.fbar{display:flex;align-items:center;gap:6px;padding:7px;background:var(--hdr);border-bottom:1px solid var(--line)}
+.nbox{min-width:50px;text-align:center;font:700 13px var(--mono);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 6px;color:var(--g2)}
+@media (prefers-color-scheme:dark){.nbox{color:var(--g4)}}
+.fxl{font-style:italic;font-weight:800;color:var(--mut);font-family:Georgia,serif;padding:0 2px}
+.fin{flex:1;min-width:0;font:16px var(--mono);padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);outline:none}
+.fin:focus{border-color:var(--g3)}
+.fok{width:38px;height:38px;border-radius:8px;background:var(--g2);color:#fff;font-weight:900;flex:none}
+.chips{display:flex;gap:6px;padding:6px 7px;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;min-width:36px;height:32px;padding:0 9px;border-radius:8px;background:var(--hdr);border:1px solid var(--line);font:700 15px var(--mono)}
+.chips button.f4{color:var(--g2);font-size:13px}
+.gwrap{overflow:auto;max-height:56vh;outline:none;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.grid{border-collapse:separate;border-spacing:0;font-size:14px;user-select:none;-webkit-user-select:none}
+.grid th{background:var(--hdr);color:var(--mut);font-weight:600;font-size:12px;height:26px;position:sticky;top:0;z-index:2;border-right:1px solid var(--grid);border-bottom:1px solid var(--grid)}
+.grid th.rh{left:0;z-index:1;width:36px;min-width:36px}
+.grid thead th.corner{left:0;z-index:3}
+.grid th.on{background:var(--hdrOn);color:var(--g1)}
+@media (prefers-color-scheme:dark){.grid th.on{color:#c9f5dc}}
+.grid td{min-width:84px;max-width:150px;height:32px;padding:0 7px;border-right:1px solid var(--grid);border-bottom:1px solid var(--grid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--card);cursor:cell;position:relative}
+.grid td.num{text-align:right;font-variant-numeric:tabular-nums}
+.grid td.bool{text-align:center;font-weight:600}
+.grid td.err{color:var(--err);font-weight:700;text-align:center}
+.grid td.hl{background:var(--hl)}
+.grid td.isf::before{content:"";position:absolute;left:0;top:0;border:4px solid transparent;border-top-color:var(--g3);border-left-color:var(--g3)}
+.grid td.sel{box-shadow:inset 0 0 0 2px var(--g2);z-index:1}
+.grid td.sel::after{content:"";position:absolute;right:-1px;bottom:-1px;width:7px;height:7px;background:var(--g2);border:1px solid var(--card)}
+.gtools{display:flex;gap:6px;padding:7px;border-top:1px solid var(--line);background:var(--hdr)}
+.gtools button{flex:1;padding:9px 4px;border-radius:9px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:13px}
+
+/* ---------- FUNCS ---------- */
+.search{width:100%;font-size:16px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);outline:none;margin-bottom:12px}
+.fcard{background:var(--card);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow)}
+.fcard h3{margin:0 0 4px;font-size:16px;display:flex;justify-content:space-between;gap:8px}
+.fcard h3 small{color:var(--mut);font-weight:600;font-size:11.5px;background:var(--hdr);padding:3px 8px;border-radius:99px}
+.fcard p{margin:6px 0 0;color:var(--mut);font-size:14.5px;line-height:1.45}
+.fcard .syn{font:14px var(--mono);color:var(--g2);word-break:break-all}
+@media (prefers-color-scheme:dark){.fcard .syn{color:var(--g4)}}
+
+/* ---------- MISC ---------- */
+.toast{position:fixed;left:50%;bottom:calc(96px + var(--sb));transform:translate(-50%,20px);background:#13221a;color:#fff;padding:11px 18px;border-radius:99px;font-weight:700;font-size:14.5px;opacity:0;transition:.3s;z-index:300;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:120;display:none;align-items:flex-end;justify-content:center}
+.ov.on{display:flex}
+.panel{background:var(--card);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:20px 20px calc(22px + var(--sb));animation:up .3s both}
+@keyframes up{from{transform:translateY(100%)}}
+.panel h3{margin:0 0 14px;font-size:20px}
+.panel input{width:100%;font-size:16px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);margin:6px 0 14px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stats div{background:var(--hdr);border-radius:14px;padding:12px;text-align:center}
+.stats b{display:block;font-size:22px}
+.stats small{color:var(--mut)}
+.danger{width:100%;padding:13px;border-radius:12px;border:1px solid var(--err);color:var(--err);font-weight:700;margin-top:10px}
+.sandtip{color:var(--mut);font-size:14px;margin:0 0 12px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="sp-grid" id="spGrid"></div>
+  <div class="sp-center">
+    <div class="sp-logo" id="spLogo"></div>
+    <div class="sp-title">Célula<span>Zero</span></div>
+    <div class="sp-cell">
+      <div class="sp-fx"><b>fx</b><span id="spText"></span><i class="caret"></i></div>
+      <div class="sp-res" id="spRes"><span>Vamos lá! 🚀</span><small>A1</small></div>
+    </div>
+  </div>
+  <div class="sp-skip">toque para pular</div>
+</div>
+
+<!-- START -->
+<section id="start" class="screen on">
+  <div class="st-hero">
+    <div class="fcell" style="top:calc(18px + var(--st));left:6%;animation-delay:-1s">=SOMA(B2:B9)</div>
+    <div class="fcell" style="top:calc(64px + var(--st));right:5%;animation-delay:-3s">R$ 2.350,00</div>
+    <div class="fcell" style="bottom:26px;left:4%;animation-delay:-2s">=PROCV(F1;A:C;2;0)</div>
+    <div class="fcell" style="bottom:58px;right:7%;animation-delay:-4s">=SE(B2&gt;=7;"OK")</div>
+    <div class="lg" id="stLogo"></div>
+    <h1>Célula<span>Zero</span></h1>
+    <p>Excel do zero ao PROCV, passo a passo — praticando numa planilha de verdade.</p>
+  </div>
+  <div class="st-wrap">
+    <div class="st-card">
+      <label for="nm">Como podemos te chamar?</label>
+      <input id="nm" maxlength="20" placeholder="Seu nome (opcional)" autocomplete="given-name">
+      <button class="primary" id="enter">Entrar</button>
+      <div class="feats"><span>📚 <b id="nLes">17</b> lições</span><span>🧮 Planilha interativa</span><span>📴 Funciona offline</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOME -->
+<section id="home" class="screen">
+  <div class="top">
+    <div class="toprow">
+      <div class="brand"><span class="lg" id="hdLogo"></span>CélulaZero</div>
+      <button class="xp" id="xpBtn">⭐ <span id="xpVal">0</span> XP</button>
+    </div>
+    <div class="hi" id="hiName">Olá!</div>
+    <p class="hisub">Uma lição por vez. Sem pressa, sem decoreba.</p>
+  </div>
+  <div class="prog">
+    <div class="ring" id="ring"><b id="ringTxt">0%</b></div>
+    <button class="cont" id="contBtn"></button>
+  </div>
+  <div class="wrap" id="mods"></div>
+</section>
+
+<!-- SANDBOX -->
+<section id="sand" class="screen">
+  <div class="ph"><h2>Planilha livre</h2><button class="sbtn" id="sandClr">Limpar</button></div>
+  <div class="wrap" style="padding-top:0">
+    <p class="sandtip">Teste o que quiser: todas as funções da trilha funcionam aqui. Seu trabalho fica salvo neste aparelho.</p>
+    <div id="sandSheet"></div>
+  </div>
+</section>
+
+<!-- FUNCS -->
+<section id="funcs" class="screen">
+  <div class="ph"><h2>Funções</h2><span class="sub">colinha rápida</span></div>
+  <div class="wrap" style="padding-top:0">
+    <input class="search" id="fq" placeholder="Buscar: soma, procv, texto…" autocomplete="off">
+    <div id="flist"></div>
+  </div>
+</section>
+
+<!-- LESSON -->
+<section id="lesson" class="screen">
+  <div class="lhead"><button class="xbtn" id="lsClose" aria-label="Fechar">✕</button><div class="lbar"><i id="lsBar"></i></div></div>
+  <div class="ltitle" id="lsTitle"></div>
+  <div id="lsBody"></div>
+  <div class="lfoot"><button class="primary" id="lsNext">Continuar</button></div>
+</section>
+
+<nav id="nav">
+  <button data-go="home" class="on"><span>🧭</span>Trilha</button>
+  <button data-go="sand"><span>🧮</span>Planilha</button>
+  <button data-go="funcs"><span>📖</span>Funções</button>
+</nav>
+
+<div class="ov" id="ov"><div class="panel">
+  <h3>Seu perfil</h3>
+  <div class="stats"><div><b id="pfXp">0</b><small>XP</small></div><div><b id="pfDone">0</b><small>lições feitas</small></div></div>
+  <label style="font-weight:700;font-size:14px;color:var(--mut)">Nome</label>
+  <input id="pfName" maxlength="20">
+  <button class="primary" id="pfSave">Salvar</button>
+  <button class="danger" id="pfReset">Apagar todo o progresso</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   MOTOR DE FÓRMULAS (padrão Excel PT-BR: separador ; )
+   ========================================================= */
+/*ENGINE*/
+const XL=(()=>{
+  class XE extends Error{constructor(c){super(c);this.code=c}}
+  const E=c=>{throw new XE(c)};
+  const norm=s=>String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+  const colIdx=c=>{let n=0;for(const ch of c.toUpperCase().replace(/\$/g,''))n=n*26+ch.charCodeAt(0)-64;return n-1};
+  const colName=i=>{let s='';i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
+  const pref=r=>{const m=/^\$?([A-Z]+)\$?(\d+)$/i.exec(r);return m?{c:colIdx(m[1]),r:+m[2]-1}:null};
+  const addr=(c,r)=>colName(c)+(r+1);
+  const isErr=v=>v!==null&&typeof v==='object'&&'err' in v;
+  const isRng=v=>v!==null&&typeof v==='object'&&'rng' in v;
+  const numParse=s=>{
+    if(typeof s!=='string')return null;
+    let t=s.trim();
+    if(/^-?\d{1,3}(\.\d{3})+(,\d+)?%?$/.test(t))t=t.replace(/\./g,'');
+    const m=/^(-?\d+(?:[.,]\d+)?)(%?)$/.exec(t);
+    if(!m)return null;
+    const n=parseFloat(m[1].replace(',','.'));
+    return m[2]?n/100:n;
+  };
+  const fmtG=n=>{if(!isFinite(n))return '#NÚM!';const r=Math.round(n*1e10)/1e10;return r.toLocaleString('pt-BR',{maximumFractionDigits:10,useGrouping:false})};
+  const ALIAS={SUM:'SOMA',AVERAGE:'MEDIA',MAX:'MAXIMO',MIN:'MINIMO',COUNT:'CONT.NUM',COUNTA:'CONT.VALORES',COUNTBLANK:'CONTAR.VAZIO',COUNTIF:'CONT.SE',SUMIF:'SOMASE',AVERAGEIF:'MEDIASE',IF:'SE',AND:'E',OR:'OU',NOT:'NAO',IFERROR:'SEERRO',ROUND:'ARRED',SQRT:'RAIZ',POWER:'POTENCIA',VLOOKUP:'PROCV',XLOOKUP:'PROCX',CONCATENATE:'CONCATENAR',UPPER:'MAIUSCULA',LOWER:'MINUSCULA',PROPER:'PRI.MAIUSCULA',TRIM:'ARRUMAR',LEFT:'ESQUERDA',RIGHT:'DIREITA',MID:'EXT.TEXTO',LEN:'NUM.CARACT',TODAY:'HOJE'};
+
+  function literal(raw){
+    if(raw==null||raw==='')return null;
+    if(raw[0]==="'")return raw.slice(1);
+    const n=numParse(raw);if(n!==null)return n;
+    const u=norm(raw.trim());
+    if(u==='VERDADEIRO')return true;
+    if(u==='FALSO')return false;
+    return raw;
+  }
+
+  function tokenize(s){
+    const commaDec=s.includes(';')||!s.includes('(');
+    const t=[];let i=0;
+    while(i<s.length){
+      const ch=s[i];
+      if(ch===' '||ch==='\t'||ch==='\n'){i++;continue}
+      if(ch==='"'){
+        let j=i+1,v='';
+        for(;;){if(j>=s.length)E('#VALOR!');if(s[j]==='"'){if(s[j+1]==='"'){v+='"';j+=2;continue}break}v+=s[j++]}
+        t.push({k:'str',v});i=j+1;continue;
+      }
+      const rest=s.slice(i);let m;
+      if((m=(commaDec?/^\d+(?:[.,]\d+)?/:/^\d+(?:\.\d+)?/).exec(rest))){t.push({k:'num',v:parseFloat(m[0].replace(',','.'))});i+=m[0].length;continue}
+      if((m=/^\$?([A-Za-z]{1,3}):\$?([A-Za-z]{1,3})(?![A-Za-z0-9_(.])/.exec(rest))){t.push({k:'col',a:m[1],b:m[2]});i+=m[0].length;continue}
+      if((m=/^\$?[A-Za-z]{1,3}\$?\d+(?![A-Za-z0-9_(.])/.exec(rest))){t.push({k:'ref',v:m[0].toUpperCase()});i+=m[0].length;continue}
+      if((m=/^[A-Za-zÀ-ÿ_][A-Za-zÀ-ÿ0-9_.]*/.exec(rest))){
+        const name=norm(m[0]);i+=m[0].length;
+        if(s[i]==='(')t.push({k:'fn',v:name});
+        else if(name==='VERDADEIRO'||name==='TRUE')t.push({k:'bool',v:true});
+        else if(name==='FALSO'||name==='FALSE')t.push({k:'bool',v:false});
+        else E('#NOME?');
+        continue;
+      }
+      const two=s.substr(i,2);
+      if(two==='<>'||two==='<='||two==='>='){t.push({k:'op',v:two});i+=2;continue}
+      if('+-*/^&=<>():;,%'.includes(ch)){t.push({k:'op',v:ch===','?';':ch});i++;continue}
+      E('#NOME?');
+    }
+    return t;
+  }
+
+  function parse(tk){
+    let p=0;
+    const peek=()=>tk[p],next=()=>tk[p++];
+    const isOp=v=>tk[p]&&tk[p].k==='op'&&tk[p].v===v;
+    const expect=v=>{if(!isOp(v))E('#NOME?');p++};
+    const CMP=['=','<>','<','>','<=','>='];
+    function cmp(){let a=cat();while(peek()&&peek().k==='op'&&CMP.includes(peek().v)){const o=next().v;a={t:'bin',o,a,b:cat()}}return a}
+    function cat(){let a=add();while(isOp('&')){p++;a={t:'bin',o:'&',a,b:add()}}return a}
+    function add(){let a=mul();while(isOp('+')||isOp('-')){const o=next().v;a={t:'bin',o,a,b:mul()}}return a}
+    function mul(){let a=pw();while(isOp('*')||isOp('/')){const o=next().v;a={t:'bin',o,a,b:pw()}}return a}
+    function pw(){let a=un();while(isOp('^')){p++;a={t:'bin',o:'^',a,b:un()}}return a}
+    function un(){if(isOp('-')){p++;return{t:'neg',a:un()}}if(isOp('+')){p++;return un()}return post()}
+    function post(){let a=prim();while(isOp('%')){p++;a={t:'pct',a}}return a}
+    function prim(){
+      const x=next();if(!x)E('#NOME?');
+      if(x.k==='num')return{t:'num',v:x.v};
+      if(x.k==='str')return{t:'str',v:x.v};
+      if(x.k==='bool')return{t:'bool',v:x.v};
+      if(x.k==='col')return{t:'col',a:x.a,b:x.b};
+      if(x.k==='ref'){
+        if(isOp(':')){p++;const b=next();if(!b||b.k!=='ref')E('#REF!');return{t:'rng',a:x.v,b:b.v}}
+        return{t:'ref',v:x.v};
+      }
+      if(x.k==='fn'){
+        expect('(');const args=[];
+        if(!isOp(')')){
+          for(;;){
+            if(isOp(';')||isOp(')'))args.push({t:'empty'});else args.push(cmp());
+            if(isOp(';')){p++;continue}
+            break;
+          }
+        }
+        expect(')');return{t:'fn',n:x.v,args};
+      }
+      if(x.k==='op'&&x.v==='('){const e=cmp();expect(')');return e}
+      E('#NOME?');
+    }
+    const r=cmp();if(p<tk.length)E('#NOME?');return r;
+  }
+
+  function evaluator(getRaw,dims){
+    const cache=new Map(),busy=new Set();
+    function cell(ref){
+      ref=ref.replace(/\$/g,'').toUpperCase();
+      if(cache.has(ref))return cache.get(ref);
+      if(busy.has(ref))E('#CIRC!');
+      busy.add(ref);let v;
+      const raw=getRaw(ref);
+      try{
+        if(typeof raw==='string'&&raw[0]==='='&&raw.length>1){
+          v=ev(parse(tokenize(raw.slice(1))));
+          if(isRng(v))v=v.rng[0][0];
+          if(v===null)v=0;
+        }else v=literal(raw);
+      }catch(e){
+        busy.delete(ref);
+        if(e instanceof XE&&e.code==='#CIRC!'&&busy.size>0)throw e;
+        v={err:e instanceof XE?e.code:'#VALOR!'};
+      }
+      busy.delete(ref);cache.set(ref,v);return v;
+    }
+    const scalar=v=>{if(isRng(v))v=v.rng[0][0];if(isErr(v))E(v.err);return v};
+    const num=v=>{v=scalar(v);if(v==null)return 0;if(typeof v==='boolean')return v?1:0;if(typeof v==='number')return v;const n=numParse(v);if(n!==null)return n;E('#VALOR!')};
+    const str=v=>{v=scalar(v);if(v==null)return '';if(typeof v==='boolean')return v?'VERDADEIRO':'FALSO';if(typeof v==='number')return fmtG(v);return String(v)};
+    const bool=v=>{v=scalar(v);if(v==null)return false;if(typeof v==='boolean')return v;if(typeof v==='number')return v!==0;const u=norm(v);if(u==='VERDADEIRO')return true;if(u==='FALSO')return false;E('#VALOR!')};
+    const rank=v=>typeof v==='number'?0:typeof v==='string'?1:2;
+    function cmp(a,b,o){
+      if(a==null)a=typeof b==='string'?'':typeof b==='boolean'?false:0;
+      if(b==null)b=typeof a==='string'?'':typeof a==='boolean'?false:0;
+      let d;const ra=rank(a),rb=rank(b);
+      if(ra!==rb)d=ra-rb;
+      else if(ra===1){const x=norm(a),y=norm(b);d=x<y?-1:x>y?1:0}
+      else d=(+a)-(+b);
+      return o==='='?d===0:o==='<>'?d!==0:o==='<'?d<0:o==='>'?d>0:o==='<='?d<=0:d>=0;
+    }
+    const same=(a,b)=>{if(a==null||isErr(a)||b==null)return false;if(typeof a!==typeof b)return false;return typeof a==='string'?norm(a.trim())===norm(String(b).trim()):a===b};
+    function rngv(c1,r1,c2,r2){const rows=[];for(let r=r1;r<=r2;r++){const row=[];for(let c=c1;c<=c2;c++)row.push(cell(addr(c,r)));rows.push(row)}return{rng:rows}}
+    function ev(n){
+      switch(n.t){
+        case 'num':case 'str':case 'bool':return n.v;
+        case 'empty':return null;
+        case 'ref':{const v=cell(n.v);if(isErr(v))E(v.err);return v}
+        case 'rng':{const a=pref(n.a),b=pref(n.b);return rngv(Math.min(a.c,b.c),Math.min(a.r,b.r),Math.max(a.c,b.c),Math.max(a.r,b.r))}
+        case 'col':{const a=colIdx(n.a),b=colIdx(n.b);return rngv(Math.min(a,b),0,Math.max(a,b),dims.rows-1)}
+        case 'neg':return -num(ev(n.a));
+        case 'pct':return num(ev(n.a))/100;
+        case 'bin':return bin(n.o,ev(n.a),ev(n.b));
+        case 'fn':return call(n.n,n.args);
+      }
+      E('#VALOR!');
+    }
+    function bin(o,a,b){
+      if(o==='&')return str(a)+str(b);
+      if('+-*/^'.includes(o)){
+        const x=num(a),y=num(b);
+        if(o==='+')return x+y;if(o==='-')return x-y;if(o==='*')return x*y;
+        if(o==='/'){if(y===0)E('#DIV/0!');return x/y}
+        const r=Math.pow(x,y);if(!isFinite(r))E('#NÚM!');return r;
+      }
+      return cmp(scalar(a),scalar(b),o);
+    }
+    function flat(args){const out=[];for(const a of args){const v=ev(a);if(isRng(v)){for(const row of v.rng)for(const x of row)out.push({v:x,r:1})}else out.push({v,r:0})}return out}
+    function nums(args){const o=[];for(const {v,r} of flat(args)){if(isErr(v))E(v.err);if(r){if(typeof v==='number')o.push(v)}else o.push(num(v))}return o}
+    function list(a){const v=ev(a);return isRng(v)?v.rng.flat():[v]}
+    function crit(c){
+      c=scalar(c);
+      if(typeof c==='number')return v=>typeof v==='number'&&v===c;
+      if(typeof c==='boolean')return v=>v===c;
+      const s=c==null?'':String(c);
+      const m=/^(<=|>=|<>|<|>|=)?([\s\S]*)$/.exec(s);const op=m[1]||'=';const rest=m[2];
+      const n=numParse(rest);
+      if(n!==null)return v=>{if(isErr(v))return false;if(typeof v!=='number')return op==='<>';return cmp(v,n,op)};
+      const pat=norm(rest);
+      const re=new RegExp('^'+pat.replace(/[.+^${}()|[\]\\]/g,'\\$&').replace(/\*/g,'.*').replace(/\?/g,'.')+'$');
+      return v=>{
+        if(isErr(v))return false;
+        if(op==='='||op==='<>'){const sv=v==null?'':norm(str(v));const ok=rest===''?sv==='':(typeof v==='string'&&re.test(sv));return op==='='?ok:!ok}
+        if(typeof v!=='string')return false;
+        return cmp(norm(v),pat,op);
+      };
+    }
+    function call(name,args){
+      name=ALIAS[name]||name;
+      const need=(min,max=min)=>{if(args.length<min||args.length>max)E('#VALOR!')};
+      switch(name){
+        case 'SOMA':return nums(args).reduce((s,x)=>s+x,0);
+        case 'MEDIA':{const a=nums(args);if(!a.length)E('#DIV/0!');return a.reduce((s,x)=>s+x,0)/a.length}
+        case 'MAXIMO':{const a=nums(args);return a.length?Math.max(...a):0}
+        case 'MINIMO':{const a=nums(args);return a.length?Math.min(...a):0}
+        case 'CONT.NUM':return flat(args).filter(x=>typeof x.v==='number').length;
+        case 'CONT.VALORES':return flat(args).filter(x=>x.v!==null&&x.v!=='').length;
+        case 'CONTAR.VAZIO':return flat(args).filter(x=>x.v===null||x.v==='').length;
+        case 'CONT.SE':{need(2);const r=list(args[0]),f=crit(ev(args[1]));return r.filter(f).length}
+        case 'SOMASE':case 'MEDIASE':{
+          need(2,3);const r=list(args[0]),f=crit(ev(args[1]));const s=args.length>2?list(args[2]):r;let t=0,k=0;
+          r.forEach((v,i)=>{if(f(v)){const x=s[i];if(typeof x==='number'){t+=x;k++}}});
+          if(name==='SOMASE')return t;if(!k)E('#DIV/0!');return t/k;
+        }
+        case 'SE':need(1,3);return bool(ev(args[0]))?(args.length>1?ev(args[1]):true):(args.length>2?ev(args[2]):false);
+        case 'E':{const a=flat(args);if(!a.length)E('#VALOR!');return a.every(x=>bool(x.v))}
+        case 'OU':{const a=flat(args);if(!a.length)E('#VALOR!');return a.some(x=>bool(x.v))}
+        case 'NAO':need(1);return !bool(ev(args[0]));
+        case 'SEERRO':{need(2);try{return scalar(ev(args[0]))}catch(e){if(e instanceof XE)return ev(args[1]);throw e}}
+        case 'ARRED':{need(1,2);const x=num(ev(args[0])),d=args.length>1?num(ev(args[1])):0;const p=Math.pow(10,d);return Math.sign(x)*Math.round(Math.abs(x)*p+1e-9)/p}
+        case 'ABS':need(1);return Math.abs(num(ev(args[0])));
+        case 'INT':need(1);return Math.floor(num(ev(args[0])));
+        case 'RAIZ':{need(1);const x=num(ev(args[0]));if(x<0)E('#NÚM!');return Math.sqrt(x)}
+        case 'POTENCIA':need(2);return Math.pow(num(ev(args[0])),num(ev(args[1])));
+        case 'PROCV':{
+          need(3,4);const key=scalar(ev(args[0]));const t=ev(args[1]);if(!isRng(t))E('#VALOR!');
+          const ci=Math.floor(num(ev(args[2])));if(ci<1)E('#VALOR!');if(ci>t.rng[0].length)E('#REF!');
+          const exact=args.length>3&&!bool(ev(args[3]));let hit=-1;
+          if(exact)hit=t.rng.findIndex(row=>same(row[0],key));
+          else for(let i=0;i<t.rng.length;i++){const v=t.rng[i][0];if(v==null||isErr(v))continue;if(rank(v)!==rank(key))continue;if(cmp(v,key,'<='))hit=i;else break}
+          if(hit<0)E('#N/D');const v=t.rng[hit][ci-1];if(isErr(v))E(v.err);return v==null?0:v;
+        }
+        case 'PROCX':{
+          need(3,4);const key=scalar(ev(args[0]));const l=list(args[1]),r=list(args[2]);
+          const i=l.findIndex(v=>same(v,key));
+          if(i<0){if(args.length>3)return ev(args[3]);E('#N/D')}
+          const v=r[i];if(v===undefined)E('#VALOR!');if(isErr(v))E(v.err);return v==null?0:v;
+        }
+        case 'CONCAT':case 'CONCATENAR':return flat(args).map(x=>{if(isErr(x.v))E(x.v.err);return str(x.v)}).join('');
+        case 'MAIUSCULA':need(1);return str(ev(args[0])).toUpperCase();
+        case 'MINUSCULA':need(1);return str(ev(args[0])).toLowerCase();
+        case 'PRI.MAIUSCULA':need(1);return str(ev(args[0])).toLowerCase().replace(/(^|[^a-zà-ÿ])([a-zà-ÿ])/g,(m,a,b)=>a+b.toUpperCase());
+        case 'ARRUMAR':need(1);return str(ev(args[0])).trim().replace(/ +/g,' ');
+        case 'ESQUERDA':case 'DIREITA':{need(1,2);const s=str(ev(args[0]));const k=args.length>1?Math.floor(num(ev(args[1]))):1;if(k<0)E('#VALOR!');return name==='ESQUERDA'?s.slice(0,k):(k?s.slice(-k):'')}
+        case 'EXT.TEXTO':{need(3);const s=str(ev(args[0])),i=Math.floor(num(ev(args[1]))),k=Math.floor(num(ev(args[2])));if(i<1||k<0)E('#VALOR!');return s.substr(i-1,k)}
+        case 'NUM.CARACT':need(1);return str(ev(args[0])).length;
+        case 'HOJE':return new Date().toLocaleDateString('pt-BR');
+      }
+      E('#NOME?');
+    }
+    return ref=>{try{return cell(ref)}catch(e){return{err:e instanceof XE?e.code:'#VALOR!'}}};
+  }
+
+  /* desloca referências relativas ao copiar fórmula */
+  function shift(raw,dr,dc){
+    if(!raw||raw[0]!=='=')return raw;
+    return raw.split('"').map((part,i)=>i%2?part:part.replace(/(^|[^A-Za-z0-9_.À-ÿ$])(\$?)([A-Za-z]{1,3})(\$?)(\d+)(?![A-Za-z0-9_(.])/g,(m,pre,a,c,b,r)=>{
+      let ci=colIdx(c),ri=+r;if(!a)ci+=dc;if(!b)ri+=dr;
+      if(ci<0||ri<1)return pre+'#REF!';
+      return pre+a+colName(ci)+b+ri;
+    })).join('"');
+  }
+  return{evaluator,norm,colIdx,colName,pref,addr,isErr,shift,numParse};
+})();
+/*ENDENGINE*/
+
+/* =========================================================
+   UTILITÁRIOS
+   ========================================================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),1800)}
+const LOGO=`<svg viewBox="0 0 100 100" width="100%" height="100%"><defs><linearGradient id="lgG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3fd08b"/><stop offset="1" stop-color="#0b5d36"/></linearGradient></defs><rect width="100" height="100" rx="24" fill="url(#lgG)"/><rect x="17" y="19" width="66" height="62" rx="9" fill="#fff"/><rect x="17" y="19" width="66" height="15" rx="9" fill="#dff3e7"/><rect x="17" y="27" width="66" height="7" fill="#dff3e7"/><path d="M17 34H83M17 57.5H83M39 19V81M61 19V81" stroke="#c6e1d1" stroke-width="2"/><rect x="39" y="34" width="22" height="23.5" fill="#e3f6eb" stroke="#107c41" stroke-width="4"/><rect x="57" y="53.5" width="8" height="8" fill="#107c41" stroke="#fff" stroke-width="1.6"/></svg>`;
+['#spLogo','#stLogo','#hdLogo'].forEach(s=>$(s).innerHTML=LOGO);
+
+function fm(spec){const o={};for(const k in spec){const p=k.split(':');if(p.length===1){o[k]=spec[k];continue}const a=XL.pref(p[0]),b=XL.pref(p[1]);for(let r=a.r;r<=b.r;r++)for(let c=a.c;c<=b.c;c++)o[XL.addr(c,r)]=spec[k]}return o}
+
+function disp(v,f){
+  if(v==null)return '';
+  if(XL.isErr(v))return v.err;
+  if(typeof v==='boolean')return v?'VERDADEIRO':'FALSO';
+  if(typeof v==='number'){
+    if(!isFinite(v))return '#NÚM!';
+    if(f==='brl')return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    if(f==='pct')return (v*100).toLocaleString('pt-BR',{maximumFractionDigits:2})+'%';
+    return v.toLocaleString('pt-BR',{maximumFractionDigits:6,useGrouping:false});
+  }
+  return String(v);
+}
+
+/* =========================================================
+   COMPONENTE PLANILHA
+   ========================================================= */
+function Sheet(host,cfg){
+  const rows=cfg.rows||8,cols=cfg.cols||6,init={...(cfg.data||{})};
+  let cells={...init},sel=cfg.start||'A1',vals={},orig='',skipClick=false;
+  const fmt=cfg.fmt||{},hl=new Set(cfg.hl||[]);
+  const chips=['=',';',':','(',')','"','+','-','*','/','>','<','&'];
+  host.innerHTML=`<div class="sheet">
+    <div class="fbar"><div class="nbox"></div><span class="fxl">fx</span>
+      <input class="fin" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="valor ou =fórmula">
+      <button class="fok" aria-label="Confirmar">✓</button></div>
+    <div class="chips"><button class="f4" data-f4="1">$ F4</button>${chips.map(c=>`<button data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+    <div class="gwrap" tabindex="0"><table class="grid"></table></div>
+    <div class="gtools"><button data-a="down">⬇ Copiar ↓</button><button data-a="right">➡ Copiar →</button><button data-a="del">⌫ Apagar</button></div>
+  </div>`;
+  const fin=host.querySelector('.fin'),nbox=host.querySelector('.nbox'),gw=host.querySelector('.gwrap'),tbl=host.querySelector('.grid');
+  let h='<thead><tr><th class="corner"></th>';
+  for(let c=0;c<cols;c++)h+=`<th data-c="${c}">${XL.colName(c)}</th>`;
+  h+='</tr></thead><tbody>';
+  for(let r=0;r<rows;r++){h+=`<tr><th class="rh" data-r="${r}">${r+1}</th>`;for(let c=0;c<cols;c++)h+=`<td data-ref="${XL.addr(c,r)}"></td>`;h+='</tr>'}
+  tbl.innerHTML=h+'</tbody>';
+  const td={};tbl.querySelectorAll('td').forEach(x=>td[x.dataset.ref]=x);
+  const ch=[...tbl.querySelectorAll('thead th[data-c]')],rh=[...tbl.querySelectorAll('th.rh')];
+
+  function render(){
+    const ev=XL.evaluator(r=>cells[r],{rows,cols});
+    vals={};
+    for(const ref in td){
+      const v=ev(ref);vals[ref]=v;const el=td[ref];
+      el.textContent=disp(v,fmt[ref]);
+      el.className=(typeof v==='number'?'num':typeof v==='boolean'?'bool':'')+(XL.isErr(v)?' err':'')+(hl.has(ref)?' hl':'')+((cells[ref]||'')[0]==='='?' isf':'')+(ref===sel?' sel':'');
+      el.title=cells[ref]||'';
+    }
+  }
+  function mark(){
+    tbl.querySelectorAll('td.sel').forEach(x=>x.classList.remove('sel'));
+    td[sel].classList.add('sel');
+    const p=XL.pref(sel);
+    ch.forEach((x,i)=>x.classList.toggle('on',i===p.c));
+    rh.forEach((x,i)=>x.classList.toggle('on',i===p.r));
+  }
+  function select(ref,silent){
+    sel=ref;nbox.textContent=ref;fin.value=cells[ref]||'';orig=fin.value;mark();
+    const el=td[ref];const wr=gw.getBoundingClientRect(),er=el.getBoundingClientRect();
+    if(er.left<wr.left+36)gw.scrollLeft-=wr.left+36-er.left;
+    else if(er.right>wr.right)gw.scrollLeft+=er.right-wr.right;
+    if(er.top<wr.top+26)gw.scrollTop-=wr.top+26-er.top;
+    else if(er.bottom>wr.bottom)gw.scrollTop+=er.bottom-wr.bottom;
+    if(!silent&&cfg.onSelect)cfg.onSelect(api);
+  }
+  function commit(){
+    const v=fin.value;
+    if(v===(cells[sel]||''))return false;
+    if(v==='')delete cells[sel];else cells[sel]=v;
+    orig=v;render();if(cfg.onChange)cfg.onChange(api);return true;
+  }
+  function insertText(t){
+    let s,e;
+    if(document.activeElement!==fin){fin.focus();s=e=fin.value.length}else{s=fin.selectionStart;e=fin.selectionEnd}
+    fin.value=fin.value.slice(0,s)+t+fin.value.slice(e);
+    fin.setSelectionRange(s+t.length,s+t.length);
+  }
+  function f4(){
+    if(document.activeElement!==fin){fin.focus();fin.setSelectionRange(fin.value.length,fin.value.length)}
+    const pos=fin.selectionStart,before=fin.value.slice(0,pos);
+    const m=/(\$?)([A-Za-z]{1,3})(\$?)(\d+)$/.exec(before);
+    if(!m||!fin.value.startsWith('=')){insertText('$');return}
+    const cyc=[['',''],['$','$'],['','$'],['$','']];
+    let k=cyc.findIndex(x=>x[0]===m[1]&&x[1]===m[3]);k=(k+1)%4;
+    const rep=cyc[k][0]+m[2].toUpperCase()+cyc[k][1]+m[4];
+    const start=pos-m[0].length;
+    fin.value=fin.value.slice(0,start)+rep+fin.value.slice(pos);
+    fin.setSelectionRange(start+rep.length,start+rep.length);
+  }
+  const move=(dc,dr)=>{const p=XL.pref(sel);const c=Math.max(0,Math.min(cols-1,p.c+dc)),r=Math.max(0,Math.min(rows-1,p.r+dr));select(XL.addr(c,r))};
+
+  tbl.addEventListener('pointerdown',e=>{
+    const x=e.target.closest('td');if(!x)return;
+    if(document.activeElement===fin&&fin.value.startsWith('=')&&/[=+\-*/^&(;:,<>]$/.test(fin.value.slice(0,fin.selectionStart))){
+      e.preventDefault();skipClick=true;insertText(x.dataset.ref);
+    }
+  });
+  tbl.addEventListener('click',e=>{
+    const x=e.target.closest('td');if(!x)return;
+    if(skipClick){skipClick=false;return}
+    select(x.dataset.ref);
+    gw.focus({preventScroll:true});
+  });
+  fin.addEventListener('blur',()=>commit());
+  fin.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();commit();move(0,1);gw.focus({preventScroll:true})}
+    else if(e.key==='Tab'){e.preventDefault();commit();move(1,0);gw.focus({preventScroll:true})}
+    else if(e.key==='Escape'){fin.value=orig;gw.focus({preventScroll:true})}
+    else if(e.key==='F4'){e.preventDefault();f4()}
+  });
+  gw.addEventListener('keydown',e=>{
+    const k=e.key;
+    if(k==='ArrowUp')move(0,-1);
+    else if(k==='ArrowDown'||k==='Enter')move(0,1);
+    else if(k==='ArrowLeft')move(-1,0);
+    else if(k==='ArrowRight'||k==='Tab')move(1,0);
+    else if(k==='Delete'||k==='Backspace'){delete cells[sel];render();select(sel,1);if(cfg.onChange)cfg.onChange(api)}
+    else if(k==='F2'){fin.focus();fin.setSelectionRange(fin.value.length,fin.value.length)}
+    else if(k.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey){fin.value=k;fin.focus()}
+    else return;
+    e.preventDefault();
+  });
+  host.querySelector('.chips').addEventListener('pointerdown',e=>{if(e.target.closest('button'))e.preventDefault()});
+  host.querySelector('.chips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.f4)f4();else insertText(b.dataset.c)});
+  const ok=host.querySelector('.fok');
+  ok.addEventListener('pointerdown',e=>e.preventDefault());
+  ok.addEventListener('click',()=>{commit();fin.blur()});
+  host.querySelector('.gtools').addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b)return;commit();
+    const a=b.dataset.a,p=XL.pref(sel);
+    if(a==='del'){delete cells[sel];render();select(sel,1);if(cfg.onChange)cfg.onChange(api);return}
+    const dr=a==='down'?1:0,dc=a==='right'?1:0;
+    if(p.r+dr>=rows||p.c+dc>=cols){toast('Não há célula ali');return}
+    if(!cells[sel]){toast('A célula está vazia');return}
+    const t=XL.addr(p.c+dc,p.r+dr);
+    cells[t]=XL.shift(cells[sel],dr,dc);
+    render();select(t,1);if(cfg.onChange)cfg.onChange(api);if(cfg.onSelect)cfg.onSelect(api);
+  });
+
+  const api={
+    get sel(){return sel},
+    v:r=>vals[r]===undefined?null:vals[r],
+    raw:r=>cells[r]||'',
+    data:()=>({...cells}),
+    reset(){cells={...init};render();select(cfg.start||'A1',1)},
+    clear(){cells={};render();select('A1',1)}
+  };
+  render();select(sel,1);
+  return api;
+}
+
+/* =========================================================
+   CONTEÚDO — helpers de verificação
+   ========================================================= */
+const isF=(s,r)=>s.raw(r).trim().startsWith('=');
+const near=(s,r,x)=>{const v=s.v(r);return typeof v==='number'&&Math.abs(v-x)<1e-6};
+const isT=(s,r,t)=>{const v=s.v(r);return typeof v==='string'&&XL.norm(v.trim())===XL.norm(t)};
+const FF=(s,r)=>XL.norm(s.raw(r).replace(/\s/g,''));
+const uses=(s,r,...fns)=>isF(s,r)&&fns.some(f=>FF(s,r).includes(XL.norm(f)+'('));
+const refs=(s,r,...rs)=>isF(s,r)&&rs.every(x=>new RegExp('(^|[^A-Z0-9.$])\\$?'+x.replace(/(\d)/,'\\$?$1')+'(?![0-9])').test(FF(s,r)));
+
+/* =========================================================
+   CONTEÚDO — MÓDULOS E LIÇÕES
+   ========================================================= */
+const MODS=[
+{t:'Conhecendo a planilha',e:'🧭',L:[
+  {id:'grade',t:'Células, linhas e colunas',d:'O mapa da planilha',
+   steps:[
+    {e:'🗺️',h:'A planilha é uma grade',b:`As <b>colunas</b> são identificadas por <b>letras</b> (A, B, C…) e as <b>linhas</b> por <b>números</b> (1, 2, 3…). O Excel tem mais de 16 mil colunas e 1 milhão de linhas!`},
+    {e:'📍',h:'Cada célula tem um endereço',b:`O cruzamento de uma coluna com uma linha é uma <b>célula</b>. O endereço é sempre <b>letra + número</b>: <code>C3</code> é a coluna C na linha 3.`,x:`Pense no jogo de batalha naval: “B5!” — é a mesma ideia.`},
+    {e:'🔎',h:'Caixa de Nome e Barra de Fórmulas',b:`Em cima da grade fica a <b>Caixa de Nome</b>, que mostra o endereço da célula selecionada, e a <b>Barra de Fórmulas</b> (<i>fx</i>), que mostra o que está escrito dentro dela.`}
+   ],
+   practice:{intro:`Explore a grade tocando nas células. Repare como a Caixa de Nome muda e como a coluna e a linha acendem.`,rows:8,cols:5,
+    data:{A1:'Mês',B1:'Vendas',A2:'Jan',B2:'120',A3:'Fev',B3:'95',A4:'Mar',B4:'140'},
+    goals:[
+     {t:`Selecione a célula <code>D4</code>`,ok:s=>s.sel==='D4'},
+     {t:`Selecione a célula <code>B7</code>`,ok:s=>s.sel==='B7'},
+     {t:`Selecione a célula que tem o valor <b>95</b>`,ok:s=>s.sel==='B3'}],
+    hint:`Primeiro a letra (no topo), depois o número (na lateral esquerda).`,
+    ans:`D4 = coluna D, linha 4. B7 = coluna B, linha 7. O 95 está em <code>B3</code>.`},
+   quiz:[{q:`Qual é o endereço da célula na coluna <b>B</b>, linha <b>7</b>?`,o:['7B','B7','B-7','L7CB'],a:1,x:`Sempre letra da coluna + número da linha.`}]},
+
+  {id:'dados',t:'Digitando dados',d:'Texto, números e alinhamento',
+   steps:[
+    {e:'⌨️',h:'Tipos de dado',b:`Uma célula pode guardar <b>texto</b> (nomes, categorias), <b>números</b> (preços, quantidades) ou <b>fórmulas</b> (cálculos). O Excel trata cada tipo de um jeito.`},
+    {e:'↔️',h:'O alinhamento te conta algo',b:`Por padrão, <b>textos ficam à esquerda</b> e <b>números à direita</b>. Se um número ficou à esquerda, o Excel provavelmente entendeu como texto — e ele não vai entrar nas contas!`},
+    {e:'✍️',h:'Como digitar',b:`Selecione a célula, digite e aperte <b>Enter</b> (aqui, também vale o botão ✓). No Excel em português a <b>vírgula</b> é o separador decimal: digite <code>12,50</code>.`}
+   ],
+   practice:{intro:`Vamos começar uma lista de compras.`,rows:6,cols:4,data:{A1:'Produto',B1:'Preço'},start:'A2',hl:['A2','B2','C1'],
+    goals:[
+     {t:`Em <code>A2</code> digite <b>Café</b>`,ok:s=>isT(s,'A2','Café')},
+     {t:`Em <code>B2</code> digite o preço <b>12,50</b>`,ok:s=>near(s,'B2',12.5)},
+     {t:`Em <code>C1</code> crie o cabeçalho <b>Estoque</b>`,ok:s=>isT(s,'C1','Estoque')}],
+    hint:`Toque na célula, depois toque na barra de cima (ao lado do <i>fx</i>), digite e confirme com ✓.`,
+    ans:`A2: <code>Café</code> · B2: <code>12,50</code> · C1: <code>Estoque</code>`},
+   quiz:[{q:`Você digitou um preço e ele ficou alinhado à <b>esquerda</b>. O que isso indica?`,o:['Está tudo certo','O Excel pode ter entendido como texto','A célula está bloqueada','É um número negativo'],a:1,x:`Números ficam à direita. Se foi para a esquerda, provavelmente virou texto (ex.: digitou com ponto ou espaço).`}]}
+]},
+
+{t:'Fórmulas',e:'🧮',L:[
+  {id:'formula',t:'Sua primeira fórmula',d:'O sinal de = e os operadores',
+   steps:[
+    {e:'🟰',h:'Tudo começa com =',b:`Para o Excel calcular, a célula precisa começar com <b>=</b>. Sem ele, <code>2+2</code> é só texto. Com ele, <code>=2+2</code> mostra <b>4</b>.`},
+    {e:'➕',h:'Operadores',b:`<code>+</code> soma · <code>-</code> subtrai · <code>*</code> multiplica · <code>/</code> divide · <code>^</code> potência.`,x:`Atenção: multiplicação é <b>*</b> (asterisco), não “x”.`},
+    {e:'🔗',h:'Use endereços, não números',b:`O segredo da planilha é calcular com <b>referências</b>: <code>=B2*C2</code>. Se o valor de B2 mudar, o resultado se atualiza sozinho.`},
+    {e:'👆',h:'Atalho de mestre',b:`Enquanto digita uma fórmula, logo depois de um <code>=</code>, <code>+</code>, <code>*</code>, <code>(</code>… <b>toque numa célula</b> e o endereço dela entra na fórmula automaticamente. No Excel é igual, com o clique do mouse.`}
+   ],
+   practice:{intro:`Calcule o total de cada produto (quantidade × preço).`,rows:6,cols:4,start:'D2',hl:['D2','D3'],
+    data:{A1:'Produto',B1:'Qtd',C1:'Preço',D1:'Total',A2:'Caneta',B2:'3',C2:'2,5',A3:'Caderno',B3:'2',C3:'18'},
+    fmt:fm({'C2:D5':'brl'}),
+    goals:[
+     {t:`Em <code>D2</code>, multiplique a quantidade (<code>B2</code>) pelo preço (<code>C2</code>)`,ok:s=>near(s,'D2',7.5)&&refs(s,'D2','B2','C2')},
+     {t:`Faça o mesmo em <code>D3</code>`,ok:s=>near(s,'D3',36)&&refs(s,'D3','B3','C3')},
+     {t:`Mude a quantidade em <code>B2</code> para <b>10</b> e veja D2 mudar sozinho`,ok:s=>near(s,'B2',10)&&near(s,'D2',25)}],
+    hint:`Comece com <code>=</code>, toque em B2, digite <code>*</code> e toque em C2.`,
+    ans:`D2: <code>=B2*C2</code> · D3: <code>=B3*C3</code>`},
+   quiz:[{q:`Qual destas é uma fórmula válida?`,o:['A1+B1','=A1+B1','=A1 mais B1','SOMAR A1 B1'],a:1,x:`Toda fórmula começa com = e usa operadores como +, -, *, /.`}]},
+
+  {id:'ordem',t:'Ordem das operações',d:'Parênteses mandam',
+   steps:[
+    {e:'📐',h:'A matemática manda',b:`O Excel calcula nesta ordem: <b>( )</b> → <b>^</b> → <b>* e /</b> → <b>+ e -</b>.`},
+    {e:'⚠️',h:'A pegadinha clássica',b:`<code>=2+3*4</code> dá <b>14</b> (primeiro 3×4). Para somar antes, use parênteses: <code>=(2+3)*4</code> dá <b>20</b>.`},
+    {e:'🎓',h:'Exemplo real: média',b:`Média de duas notas: <code>=(B2+C2)/2</code>. Sem os parênteses, <code>=B2+C2/2</code> dividiria só a segunda nota!`}
+   ],
+   practice:{intro:`Calcule a média das duas notas de cada aluno usando parênteses.`,rows:6,cols:4,start:'D2',hl:['D2','D3'],
+    data:{A1:'Aluno',B1:'Nota 1',C1:'Nota 2',D1:'Média',A2:'Ana',B2:'7',C2:'9',A3:'Bruno',B3:'6',C3:'5'},
+    goals:[
+     {t:`Em <code>D2</code>, calcule a média de Ana (deve dar <b>8</b>)`,ok:s=>near(s,'D2',8)&&refs(s,'D2','B2','C2')},
+     {t:`Em <code>D3</code>, a média de Bruno (deve dar <b>5,5</b>)`,ok:s=>near(s,'D3',5.5)&&refs(s,'D3','B3','C3')}],
+    hint:`Some as notas dentro dos parênteses e depois divida por 2.`,
+    ans:`D2: <code>=(B2+C2)/2</code> · D3: <code>=(B3+C3)/2</code>`},
+   quiz:[{q:`Quanto dá <code>=10-2*3</code>?`,o:['24','4','-4','30'],a:1,x:`Primeiro 2*3 = 6, depois 10 - 6 = 4.`}]}
+]},
+
+{t:'Funções essenciais',e:'🧰',L:[
+  {id:'soma',t:'SOMA e intervalos',d:'Somando muitas células de uma vez',
+   steps:[
+    {e:'📦',h:'O que é uma função',b:`Funções são fórmulas prontas. O formato é <code>=NOME(argumentos)</code>. Ex.: <code>=SOMA(...)</code>, <code>=MÉDIA(...)</code>.`},
+    {e:'🧱',h:'Intervalos com :',b:`Um <b>intervalo</b> é um bloco de células. <code>B2:B6</code> quer dizer “de B2 até B6”. <code>A1:C3</code> é um retângulo com 9 células.`},
+    {e:'∑',h:'SOMA',b:`<code>=SOMA(B2:B6)</code> soma tudo do intervalo — muito melhor que <code>=B2+B3+B4+B5+B6</code>!`},
+    {e:'🇧🇷',h:'Ponto e vírgula',b:`No Excel em português os argumentos são separados por <b>;</b> — ex.: <code>=SOMA(B2:B6;D2)</code>. No Excel em inglês é vírgula.`}
+   ],
+   practice:{intro:`Feche o orçamento do mês.`,rows:9,cols:3,start:'B7',hl:['B7'],
+    data:{A1:'Gasto',B1:'Valor',A2:'Aluguel',B2:'1200',A3:'Mercado',B3:'650',A4:'Luz',B4:'180',A5:'Internet',B5:'100',A6:'Transporte',B6:'220',A7:'Total'},
+    fmt:fm({'B2:B7':'brl'}),
+    goals:[
+     {t:`Em <code>B7</code>, use <b>SOMA</b> com um intervalo para calcular o total`,ok:s=>uses(s,'B7','SOMA','SUM')&&s.raw('B7').includes(':')&&near(s,'B7',2350)},
+     {t:`Mude o Mercado (<code>B3</code>) para <b>800</b> — o total deve virar R$ 2.500,00`,ok:s=>near(s,'B3',800)&&near(s,'B7',2500)&&uses(s,'B7','SOMA','SUM')}],
+    hint:`Digite <code>=SOMA(</code>, toque em B2, digite <code>:</code>, toque em B6 e feche com <code>)</code>.`,
+    ans:`B7: <code>=SOMA(B2:B6)</code>`},
+   quiz:[{q:`O que significa <code>A1:A10</code>?`,o:['Só A1 e A10','Todas as células de A1 até A10','A1 dividido por A10','A coluna A inteira'],a:1,x:`Os dois-pontos indicam um intervalo contínuo.`}]},
+
+  {id:'media',t:'MÉDIA, MÁXIMO e MÍNIMO',d:'Resumindo uma lista',
+   steps:[
+    {e:'📊',h:'MÉDIA',b:`<code>=MÉDIA(B2:B6)</code> soma e divide pela quantidade de números — tudo automático.`},
+    {e:'🏔️',h:'MÁXIMO e MÍNIMO',b:`<code>=MÁXIMO(B2:B6)</code> mostra o maior valor e <code>=MÍNIMO(B2:B6)</code> o menor.`},
+    {e:'✨',h:'E os acentos?',b:`Aqui você pode digitar com ou sem acento (MEDIA ou MÉDIA). No Excel de verdade, use o nome certinho — ou escolha na lista que aparece enquanto você digita.`}
+   ],
+   practice:{intro:`Resuma as notas da turma.`,rows:10,cols:3,start:'B7',hl:['B7','B8','B9'],
+    data:{A1:'Aluno',B1:'Nota',A2:'Ana',B2:'8',A3:'Bruno',B3:'6,5',A4:'Carla',B4:'9',A5:'Diego',B5:'7',A6:'Elisa',B6:'5,5',A7:'Média',A8:'Maior',A9:'Menor'},
+    goals:[
+     {t:`Em <code>B7</code>, a média da turma com <b>MÉDIA</b>`,ok:s=>uses(s,'B7','MEDIA','AVERAGE')&&near(s,'B7',7.2)},
+     {t:`Em <code>B8</code>, a maior nota com <b>MÁXIMO</b>`,ok:s=>uses(s,'B8','MAXIMO','MAX')&&near(s,'B8',9)},
+     {t:`Em <code>B9</code>, a menor nota com <b>MÍNIMO</b>`,ok:s=>uses(s,'B9','MINIMO','MIN')&&near(s,'B9',5.5)}],
+    hint:`O intervalo das notas é <code>B2:B6</code> nas três fórmulas.`,
+    ans:`<code>=MÉDIA(B2:B6)</code> · <code>=MÁXIMO(B2:B6)</code> · <code>=MÍNIMO(B2:B6)</code>`},
+   quiz:[{q:`Qual função mostra o <b>maior</b> valor de uma lista?`,o:['MAIOR.VALOR','TOPO','MÁXIMO','SOMA'],a:2}]},
+
+  {id:'cont',t:'Contando células',d:'CONT.NÚM, CONT.VALORES, CONTAR.VAZIO',
+   steps:[
+    {e:'🔢',h:'CONT.NÚM',b:`<code>=CONT.NÚM(B2:B6)</code> conta quantas células têm <b>números</b>. Textos e células vazias ficam de fora.`},
+    {e:'📝',h:'CONT.VALORES',b:`<code>=CONT.VALORES(B2:B6)</code> conta as células que <b>não estão vazias</b> — números, textos, tudo.`},
+    {e:'🕳️',h:'CONTAR.VAZIO',b:`E o contrário: <code>=CONTAR.VAZIO(B2:B6)</code> conta as células vazias.`}
+   ],
+   practice:{intro:`Analise a lista de notas (repare que tem texto e célula vazia).`,rows:7,cols:5,start:'E1',hl:['E1','E2','E3'],
+    data:{A1:'Aluno',B1:'Nota',A2:'Ana',B2:'8',A3:'Bruno',B3:'faltou',A4:'Carla',B4:'7',A5:'Diego',A6:'Elisa',B6:'9',D1:'Com nota',D2:'Preenchidas',D3:'Vazias'},
+    goals:[
+     {t:`Em <code>E1</code>, conte quantos têm nota (<b>CONT.NÚM</b>)`,ok:s=>uses(s,'E1','CONT.NUM','COUNT')&&near(s,'E1',3)},
+     {t:`Em <code>E2</code>, conte as células preenchidas (<b>CONT.VALORES</b>)`,ok:s=>uses(s,'E2','CONT.VALORES','COUNTA')&&near(s,'E2',4)},
+     {t:`Em <code>E3</code>, conte as vazias (<b>CONTAR.VAZIO</b>)`,ok:s=>uses(s,'E3','CONTAR.VAZIO','COUNTBLANK')&&near(s,'E3',1)}],
+    hint:`O intervalo é sempre <code>B2:B6</code>.`,
+    ans:`<code>=CONT.NÚM(B2:B6)</code> · <code>=CONT.VALORES(B2:B6)</code> · <code>=CONTAR.VAZIO(B2:B6)</code>`},
+   quiz:[{q:`Numa lista com 5 números e 2 textos, quanto dá <b>CONT.NÚM</b>?`,o:['7','5','2','0'],a:1}]}
+]},
+
+{t:'Referências',e:'📌',L:[
+  {id:'relativa',t:'Copiando fórmulas',d:'Referência relativa',
+   steps:[
+    {e:'🧬',h:'Fórmulas se adaptam',b:`Quando você copia <code>=B2*C2</code> uma linha para baixo, ela vira <code>=B3*C3</code>. Os endereços “andam” junto.`},
+    {e:'↘️',h:'Referência relativa',b:`Isso se chama <b>referência relativa</b>: o endereço é relativo à posição da célula. É o comportamento padrão — e é o que deixa você criar uma fórmula só e usar na tabela inteira.`},
+    {e:'🖱️',h:'Alça de preenchimento',b:`No Excel você arrasta o quadradinho no canto inferior direito da célula (ou dá dois cliques nele). Aqui, use o botão <b>⬇ Copiar ↓</b> embaixo da grade.`}
+   ],
+   practice:{intro:`Crie uma fórmula e copie para as outras linhas.`,rows:7,cols:4,start:'D2',hl:['D2','D3','D4','D5'],
+    data:{A1:'Produto',B1:'Qtd',C1:'Preço',D1:'Total',A2:'Arroz',B2:'2',C2:'25',A3:'Feijão',B3:'3',C3:'9',A4:'Óleo',B4:'1',C4:'8',A5:'Café',B5:'2',C5:'18'},
+    fmt:fm({'C2:D6':'brl'}),
+    goals:[
+     {t:`Crie a fórmula do total em <code>D2</code>`,ok:s=>near(s,'D2',50)&&refs(s,'D2','B2','C2')},
+     {t:`Selecione D2 e use <b>Copiar ↓</b> até chegar em <code>D5</code>`,ok:s=>near(s,'D3',27)&&near(s,'D4',8)&&near(s,'D5',36)&&refs(s,'D5','B5','C5')}],
+    hint:`Depois de criar D2, toque em <b>Copiar ↓</b> três vezes. Toque em D5 e olhe a fórmula: ela virou <code>=B5*C5</code>.`,
+    ans:`D2: <code>=B2*C2</code> e copie para baixo.`},
+   quiz:[{q:`<code>=A1+B1</code> está em C1. Copiando para <b>C2</b>, ela vira:`,o:['=A1+B1','=A2+B2','=B1+C1','=A2+B1'],a:1}]},
+
+  {id:'absoluta',t:'Travando com $',d:'Referência absoluta',
+   steps:[
+    {e:'🔒',h:'Quando o endereço não pode andar',b:`Imagine a taxa de comissão numa única célula, <code>F1</code>. Se você copiar <code>=B2*F1</code> para baixo, vira <code>=B3*F2</code> — e F2 está vazia! Resultado: zero.`},
+    {e:'💲',h:'Referência absoluta',b:`Coloque <b>$</b> para travar: <code>$F$1</code> nunca muda ao copiar. A fórmula fica <code>=B2*$F$1</code>, depois <code>=B3*$F$1</code>…`},
+    {e:'🧩',h:'Travas mistas',b:`<code>$F1</code> trava só a coluna; <code>F$1</code> trava só a linha. No Excel, aperte <b>F4</b> com o cursor no endereço para alternar. Aqui tem o botão <b>$ F4</b> que faz o mesmo.`}
+   ],
+   practice:{intro:`Calcule a comissão de cada vendedor usando a taxa de <code>F1</code>.`,rows:7,cols:6,start:'C2',hl:['C2','C3','C4','C5','F1'],
+    data:{A1:'Vendedor',B1:'Venda',C1:'Comissão',E1:'Taxa',F1:'5%',A2:'Lia',B2:'1000',A3:'Max',B3:'2500',A4:'Rui',B4:'800',A5:'Bia',B5:'4200'},
+    fmt:{...fm({'B2:C6':'brl'}),F1:'pct'},
+    goals:[
+     {t:`Em <code>C2</code>, multiplique a venda pela taxa <b>travada</b> (<code>$F$1</code>)`,ok:s=>near(s,'C2',50)&&FF(s,'C2').includes('F$1')},
+     {t:`Copie a fórmula até <code>C5</code>`,ok:s=>near(s,'C3',125)&&near(s,'C4',40)&&near(s,'C5',210)},
+     {t:`Mude a taxa em <code>F1</code> para <b>10%</b> e veja tudo atualizar`,ok:s=>near(s,'F1',0.1)&&near(s,'C5',420)}],
+    hint:`Digite <code>=B2*F1</code>, deixe o cursor logo depois de F1 e toque em <b>$ F4</b> — vira <code>$F$1</code>.`,
+    ans:`C2: <code>=B2*$F$1</code> e copie para baixo.`},
+   quiz:[{q:`<code>=B2*$F$1</code> copiada uma linha para baixo vira:`,o:['=B3*$F$2','=B2*$F$1','=B3*$F$1','=C2*$G$1'],a:2,x:`B2 é relativa (anda), $F$1 é absoluta (fica parada).`}]}
+]},
+
+{t:'Lógica e condições',e:'🧠',L:[
+  {id:'se',t:'A função SE',d:'A planilha tomando decisões',
+   steps:[
+    {e:'🔀',h:'SE: se isso, então aquilo',b:`<code>=SE(teste; valor_se_verdadeiro; valor_se_falso)</code>`},
+    {e:'⚖️',h:'Comparações',b:`Os testes usam <code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code> <code>=</code> e <code>&lt;&gt;</code> (diferente).`},
+    {e:'💬',h:'Texto vai entre aspas',b:`<code>=SE(B2&gt;=7;"Aprovado";"Reprovado")</code> — todo texto dentro de uma fórmula vai entre <b>aspas</b>. Números não.`}
+   ],
+   practice:{intro:`Quem tirou 7 ou mais está aprovado.`,rows:7,cols:3,start:'C2',hl:['C2','C3','C4','C5'],
+    data:{A1:'Aluno',B1:'Nota',C1:'Situação',A2:'Ana',B2:'8',A3:'Bruno',B3:'5',A4:'Carla',B4:'7',A5:'Diego',B5:'6,5'},
+    goals:[
+     {t:`Em <code>C2</code>, use <b>SE</b> para mostrar <b>Aprovado</b> ou <b>Reprovado</b>`,ok:s=>uses(s,'C2','SE','IF')&&isT(s,'C2','Aprovado')},
+     {t:`Copie até <code>C5</code> — confira Carla (nota 7, exatamente no limite)`,ok:s=>isT(s,'C3','Reprovado')&&isT(s,'C4','Aprovado')&&isT(s,'C5','Reprovado')}],
+    hint:`Use <code>&gt;=</code> para incluir quem tirou exatamente 7.`,
+    ans:`C2: <code>=SE(B2&gt;=7;"Aprovado";"Reprovado")</code> e copie para baixo.`},
+   quiz:[{q:`<code>=SE(10&gt;20;"A";"B")</code> mostra:`,o:['A','B','VERDADEIRO','Erro'],a:1,x:`10 > 20 é falso, então vem o terceiro argumento.`}]},
+
+  {id:'eou',t:'E e OU',d:'Várias condições ao mesmo tempo',
+   steps:[
+    {e:'🤝',h:'E',b:`<code>=E(teste1; teste2)</code> só é VERDADEIRO se <b>todos</b> os testes forem verdadeiros.`},
+    {e:'🙌',h:'OU',b:`<code>=OU(teste1; teste2)</code> é VERDADEIRO se <b>pelo menos um</b> for verdadeiro.`},
+    {e:'🪆',h:'Funções dentro de funções',b:`Combine com o SE: <code>=SE(E(B2&gt;=1000;C2=0);"Sim";"Não")</code> — bônus só para quem vendeu 1000 ou mais <b>e</b> não faltou.`}
+   ],
+   practice:{intro:`Bônus para quem vendeu <b>1000 ou mais</b> <b>e</b> teve <b>0 faltas</b>.`,rows:7,cols:4,start:'D2',hl:['D2','D3','D4','D5'],
+    data:{A1:'Vendedor',B1:'Vendas',C1:'Faltas',D1:'Bônus',A2:'Lia',B2:'1500',C2:'0',A3:'Max',B3:'1200',C3:'2',A4:'Rui',B4:'800',C4:'0',A5:'Bia',B5:'2000',C5:'1'},
+    goals:[
+     {t:`Em <code>D2</code>, use <b>SE</b> com <b>E</b> para mostrar <b>Sim</b> ou <b>Não</b>`,ok:s=>uses(s,'D2','E','AND')&&isT(s,'D2','Sim')},
+     {t:`Copie até <code>D5</code> (só a Lia ganha)`,ok:s=>isT(s,'D3','Não')&&isT(s,'D4','Não')&&isT(s,'D5','Não')}],
+    hint:`O E vai dentro do teste do SE: <code>=SE(E(...;...);"Sim";"Não")</code>.`,
+    ans:`D2: <code>=SE(E(B2&gt;=1000;C2=0);"Sim";"Não")</code> e copie.`},
+   quiz:[{q:`<code>=OU(1&gt;2; 5&gt;3)</code> resulta em:`,o:['VERDADEIRO','FALSO','Erro','5'],a:0,x:`Basta um teste verdadeiro (5 > 3).`}]},
+
+  {id:'contse',t:'CONT.SE e SOMASE',d:'Contar e somar com critério',
+   steps:[
+    {e:'🎯',h:'CONT.SE',b:`Conta só o que atende a um critério: <code>=CONT.SE(A2:A6;"Sul")</code>.`},
+    {e:'💰',h:'SOMASE',b:`Soma só o que atende: <code>=SOMASE(A2:A6;"Sul";B2:B6)</code> — procura “Sul” em A e soma os valores correspondentes de B.`},
+    {e:'📏',h:'Critérios com operador',b:`Use aspas: <code>=CONT.SE(B2:B6;"&gt;200")</code> conta os valores acima de 200.`}
+   ],
+   practice:{intro:`Analise as vendas por região.`,rows:8,cols:5,start:'E1',hl:['E1','E2','E3'],
+    data:{A1:'Região',B1:'Valor',A2:'Sul',B2:'300',A3:'Norte',B3:'150',A4:'Sul',B4:'200',A5:'Leste',B5:'400',A6:'Sul',B6:'100',D1:'Vendas Sul',D2:'Total Sul',D3:'Acima de 200'},
+    fmt:{...fm({'B2:B6':'brl'}),E2:'brl'},
+    goals:[
+     {t:`Em <code>E1</code>, quantas vendas foram no Sul (<b>CONT.SE</b>)`,ok:s=>uses(s,'E1','CONT.SE','COUNTIF')&&near(s,'E1',3)},
+     {t:`Em <code>E2</code>, o total vendido no Sul (<b>SOMASE</b>)`,ok:s=>uses(s,'E2','SOMASE','SUMIF')&&near(s,'E2',600)},
+     {t:`Em <code>E3</code>, quantas vendas passaram de 200`,ok:s=>uses(s,'E3','CONT.SE','COUNTIF')&&near(s,'E3',2)}],
+    hint:`O critério de texto vai entre aspas: <code>"Sul"</code>. Para “acima de 200”: <code>"&gt;200"</code>.`,
+    ans:`<code>=CONT.SE(A2:A6;"Sul")</code> · <code>=SOMASE(A2:A6;"Sul";B2:B6)</code> · <code>=CONT.SE(B2:B6;"&gt;200")</code>`},
+   quiz:[{q:`Para somar só as vendas de “Norte”, use:`,o:['=SOMA(Norte)','=SOMASE(A:A;"Norte";B:B)','=CONT.SE(A:A;"Norte")','=SE(Norte;SOMA)'],a:1,x:`A:A é a coluna A inteira — funciona aqui também!`}]}
+]},
+
+{t:'Buscando dados',e:'🔍',L:[
+  {id:'procv',t:'PROCV',d:'Procurar numa tabela',
+   steps:[
+    {e:'📚',h:'Procurar numa tabela',b:`<code>PROCV</code> procura um valor na <b>1ª coluna</b> de uma tabela e devolve o dado de outra coluna, na mesma linha.`},
+    {e:'🧾',h:'A estrutura',b:`<code>=PROCV(valor; tabela; nº_da_coluna; FALSO)</code>`,x:`<code>=PROCV(F1;A2:C5;2;FALSO)</code> procura F1 em A2:A5 e traz a 2ª coluna da tabela.`},
+    {e:'🎯',h:'FALSO no final, sempre',b:`O <b>FALSO</b> (ou 0) pede correspondência <b>exata</b>. Sem ele, o Excel pode trazer um valor “aproximado” — e errado.`},
+    {e:'⛔',h:'A limitação',b:`O PROCV só olha para a <b>direita</b> da primeira coluna. Para procurar para a esquerda, existe o PROCX (próxima lição).`}
+   ],
+   practice:{intro:`Monte um buscador de produtos pelo código.`,rows:7,cols:6,start:'F2',hl:['F2','F3'],
+    data:{A1:'Código',B1:'Produto',C1:'Preço',A2:'101',B2:'Caneta',C2:'2,5',A3:'102',B3:'Caderno',C3:'18',A4:'103',B4:'Mochila',C4:'120',A5:'104',B5:'Régua',C5:'4',E1:'Código',F1:'103',E2:'Produto',E3:'Preço'},
+    fmt:{...fm({'C2:C5':'brl'}),F3:'brl'},
+    goals:[
+     {t:`Em <code>F2</code>, use <b>PROCV</b> para trazer o nome do produto do código em F1`,ok:s=>uses(s,'F2','PROCV','VLOOKUP')&&refs(s,'F2','F1')&&isT(s,'F2','Mochila')},
+     {t:`Em <code>F3</code>, use <b>PROCV</b> para trazer o preço`,ok:s=>uses(s,'F3','PROCV','VLOOKUP')&&refs(s,'F3','F1')&&near(s,'F3',120)},
+     {t:`Troque o código em <code>F1</code> para <b>102</b> e veja o buscador funcionar`,ok:s=>near(s,'F1',102)&&isT(s,'F2','Caderno')&&near(s,'F3',18)}],
+    hint:`A tabela é <code>A2:C5</code>. Produto é a coluna <b>2</b>, preço é a coluna <b>3</b>.`,
+    ans:`F2: <code>=PROCV(F1;A2:C5;2;FALSO)</code> · F3: <code>=PROCV(F1;A2:C5;3;FALSO)</code>`},
+   quiz:[{q:`Em <code>=PROCV(X;A2:D9;3;FALSO)</code>, o resultado vem de qual coluna?`,o:['A','B','C','D'],a:2,x:`A tabela começa em A, então a 3ª coluna é a C.`}]},
+
+  {id:'procx',t:'PROCX',d:'A busca moderna',
+   steps:[
+    {e:'🚀',h:'O sucessor do PROCV',b:`Disponível no Excel 365 e 2021+: <code>=PROCX(valor; onde_procurar; o_que_devolver)</code>.`},
+    {e:'↔️',h:'Qualquer direção',b:`Você indica a coluna de busca e a de retorno separadamente — dá para buscar para a esquerda e não precisa contar colunas.`},
+    {e:'🛟',h:'E se não achar?',b:`O 4º argumento é opcional: <code>=PROCX(F1;B2:B4;A2:A4;"Não encontrado")</code> mostra essa mensagem no lugar do erro.`}
+   ],
+   practice:{intro:`Descubra o ramal e o setor pelo nome — repare que o ramal está à <b>esquerda</b> do nome (o PROCV não conseguiria).`,rows:6,cols:6,start:'F2',hl:['F2','F3'],
+    data:{A1:'Ramal',B1:'Nome',C1:'Setor',A2:'201',B2:'Ana',C2:'TI',A3:'202',B3:'Beto',C3:'RH',A4:'203',B4:'Caio',C4:'Vendas',E1:'Nome',F1:'Beto',E2:'Ramal',E3:'Setor'},
+    goals:[
+     {t:`Em <code>F2</code>, use <b>PROCX</b> para achar o ramal de quem está em F1`,ok:s=>uses(s,'F2','PROCX','XLOOKUP')&&near(s,'F2',202)},
+     {t:`Em <code>F3</code>, use <b>PROCX</b> para achar o setor`,ok:s=>uses(s,'F3','PROCX','XLOOKUP')&&isT(s,'F3','RH')},
+     {t:`Ajuste F2 para mostrar <b>"Não encontrado"</b> e teste digitando em F1 um nome que não existe`,ok:s=>{const n=XL.norm(s.raw('F1').trim());return n&&!['ANA','BETO','CAIO'].includes(n)&&uses(s,'F2','PROCX','XLOOKUP')&&typeof s.v('F2')==='string'}}],
+    hint:`Ramal: procure F1 em <code>B2:B4</code> e devolva <code>A2:A4</code>.`,
+    ans:`F2: <code>=PROCX(F1;B2:B4;A2:A4;"Não encontrado")</code> · F3: <code>=PROCX(F1;B2:B4;C2:C4)</code>`},
+   quiz:[{q:`Qual a principal vantagem do PROCX sobre o PROCV?`,o:['É mais curto de digitar','Busca em qualquer direção','Funciona sem tabela','Não precisa de valor de busca'],a:1}]}
+]},
+
+{t:'Trabalhando com texto',e:'🔤',L:[
+  {id:'texto',t:'Juntando e ajustando texto',d:'&, CONCAT, MAIÚSCULA, ESQUERDA',
+   steps:[
+    {e:'🔗',h:'O operador &',b:`<code>=A2&amp;" "&amp;B2</code> junta o nome, um espaço e o sobrenome. O espaço entre aspas também é texto!`},
+    {e:'🧵',h:'CONCAT',b:`<code>=CONCAT(A2;" ";B2)</code> faz o mesmo. Em versões antigas do Excel o nome é CONCATENAR.`},
+    {e:'🔠',h:'Transformando texto',b:`<code>MAIÚSCULA</code>, <code>MINÚSCULA</code>, <code>ARRUMAR</code> (tira espaços sobrando), <code>ESQUERDA(texto;n)</code> e <code>DIREITA(texto;n)</code> pegam n letras do começo ou do fim.`}
+   ],
+   practice:{intro:`Monte o nome completo e as iniciais.`,rows:5,cols:4,start:'C2',hl:['C2','C3','D2'],
+    data:{A1:'Nome',B1:'Sobrenome',C1:'Completo',D1:'Iniciais',A2:'Ana',B2:'Souza',A3:'Bruno',B3:'Lima'},
+    goals:[
+     {t:`Em <code>C2</code>, junte nome e sobrenome com espaço (<b>Ana Souza</b>)`,ok:s=>isF(s,'C2')&&isT(s,'C2','Ana Souza')},
+     {t:`Faça o mesmo em <code>C3</code>`,ok:s=>isF(s,'C3')&&isT(s,'C3','Bruno Lima')},
+     {t:`Em <code>D2</code>, use <b>ESQUERDA</b> para montar as iniciais <b>AS</b>`,ok:s=>uses(s,'D2','ESQUERDA','LEFT')&&isT(s,'D2','AS')}],
+    hint:`Iniciais: pegue 1 letra de cada e junte com &amp;.`,
+    ans:`C2: <code>=A2&amp;" "&amp;B2</code> · D2: <code>=ESQUERDA(A2;1)&amp;ESQUERDA(B2;1)</code>`},
+   quiz:[{q:`<code>=ESQUERDA("Excel";2)</code> resulta em:`,o:['Ex','el','E','Excel'],a:0}]}
+]},
+
+{t:'Nível profissional',e:'🏆',L:[
+  {id:'erros',t:'Entendendo os erros',d:'E como esconder com SEERRO',
+   steps:[
+    {e:'🚨',h:'Os erros mais comuns',b:`<code>#DIV/0!</code> divisão por zero · <code>#NOME?</code> função escrita errada · <code>#N/D</code> a busca não achou · <code>#VALOR!</code> tipo errado (ex.: texto + número) · <code>#REF!</code> referência que não existe mais.`},
+    {e:'🛡️',h:'SEERRO',b:`<code>=SEERRO(fórmula; valor_se_erro)</code> mostra um valor alternativo no lugar do erro. Ex.: <code>=SEERRO(A2/B2;0)</code>.`,x:`Use com cuidado: esconder um erro não corrige a causa. Use quando o erro é esperado (como pedidos zerados).`}
+   ],
+   practice:{intro:`O ticket médio da linha 3 quebrou porque não houve pedidos.`,rows:6,cols:5,start:'C3',hl:['C2','C3','E1'],
+    data:{A1:'Faturamento',B1:'Pedidos',C1:'Ticket médio',A2:'500',B2:'10',C2:'=A2/B2',A3:'300',B3:'0',C3:'=A3/B3'},
+    fmt:fm({'A2:A3':'brl','C2:C3':'brl'}),
+    goals:[
+     {t:`Em <code>C3</code>, use <b>SEERRO</b> para mostrar 0 no lugar do erro`,ok:s=>uses(s,'C3','SEERRO','IFERROR')&&near(s,'C3',0)},
+     {t:`Proteja também <code>C2</code> (deve continuar R$ 50,00)`,ok:s=>uses(s,'C2','SEERRO','IFERROR')&&near(s,'C2',50)},
+     {t:`Em <code>E1</code>, provoque um <b>#NOME?</b> escrevendo uma função errada (ex.: <code>=SOMAA(A2:A3)</code>)`,ok:s=>{const v=s.v('E1');return XL.isErr(v)&&v.err==='#NOME?'}}],
+    hint:`Envolva a divisão: <code>=SEERRO(A3/B3;0)</code>.`,
+    ans:`C3: <code>=SEERRO(A3/B3;0)</code> · C2: <code>=SEERRO(A2/B2;0)</code> · E1: qualquer nome inexistente, como <code>=SOMAA(A2:A3)</code>`},
+   quiz:[{q:`O PROCV não encontrou o valor. Qual erro aparece?`,o:['#REF!','#N/D','#DIV/0!','#NOME?'],a:1,x:`#N/D = “não disponível”: o valor procurado não está na tabela.`}]},
+
+  {id:'atalhos',t:'Atalhos e boas práticas',d:'Trabalhe como profissional',
+   steps:[
+    {e:'⚡',h:'Atalhos essenciais',b:`<code>Ctrl+C</code> / <code>Ctrl+V</code> copiar e colar · <code>Ctrl+Z</code> desfazer · <code>Ctrl+S</code> salvar · <code>F2</code> editar a célula · <code>F4</code> alternar o $ · <code>Alt+=</code> AutoSoma.`,x:`No Mac, troque Ctrl por ⌘.`},
+    {e:'🗂️',h:'Tabelas e filtros',b:`<code>Ctrl+T</code> transforma os dados em <b>Tabela</b> (com filtro, cores e fórmulas que se estendem sozinhas). <code>Ctrl+Shift+L</code> liga e desliga os filtros.`},
+    {e:'📅',h:'Datas rápidas',b:`<code>Ctrl+;</code> insere a data de hoje como valor fixo. <code>=HOJE()</code> sempre mostra a data atual.`},
+    {e:'✅',h:'Boas práticas',b:`Um dado por célula · cabeçalhos na linha 1 · nada de linhas vazias no meio da tabela · nunca escreva números fixos dentro das fórmulas: deixe-os numa célula (como a taxa em F1) e referencie.`}
+   ],
+   quiz:[
+    {q:`Qual atalho aplica a <b>AutoSoma</b>?`,o:['Ctrl+S','Alt+=','F4','Ctrl+T'],a:1},
+    {q:`Para alternar entre A1, $A$1, A$1 e $A1 enquanto edita, use:`,o:['F2','F4','Ctrl+$','Shift+4'],a:1},
+    {q:`Qual destas é uma boa prática?`,o:['Deixar linhas vazias no meio da tabela','Colocar vários dados numa célula','Guardar valores fixos em células e referenciá-las','Digitar o resultado em vez da fórmula'],a:2}]}
+]}
+];
+const LESSONS=[];MODS.forEach((m,mi)=>m.L.forEach(l=>{l.mi=mi;LESSONS.push(l)}));
+$('#nLes').textContent=LESSONS.length;
+
+const FUNCS=[
+ ['SOMA','=SOMA(B2:B10)','Soma os números de um intervalo.','Básicas'],
+ ['MÉDIA','=MÉDIA(B2:B10)','Média aritmética dos números.','Básicas'],
+ ['MÁXIMO','=MÁXIMO(B2:B10)','Maior valor do intervalo.','Básicas'],
+ ['MÍNIMO','=MÍNIMO(B2:B10)','Menor valor do intervalo.','Básicas'],
+ ['CONT.NÚM','=CONT.NÚM(B2:B10)','Conta células com números.','Contagem'],
+ ['CONT.VALORES','=CONT.VALORES(B2:B10)','Conta células não vazias.','Contagem'],
+ ['CONTAR.VAZIO','=CONTAR.VAZIO(B2:B10)','Conta células vazias.','Contagem'],
+ ['CONT.SE','=CONT.SE(A2:A10;"Sul")','Conta células que atendem a um critério. Aceita "&gt;100", "&lt;&gt;x" e curingas como "Ma*".','Condição'],
+ ['SOMASE','=SOMASE(A2:A10;"Sul";B2:B10)','Soma os valores cujo critério é atendido.','Condição'],
+ ['MÉDIASE','=MÉDIASE(A2:A10;"Sul";B2:B10)','Média dos valores que atendem ao critério.','Condição'],
+ ['SE','=SE(B2&gt;=7;"Aprovado";"Reprovado")','Devolve um valor se o teste for verdadeiro e outro se for falso.','Lógica'],
+ ['E','=E(B2&gt;0;C2&gt;0)','VERDADEIRO se todos os testes forem verdadeiros.','Lógica'],
+ ['OU','=OU(B2&gt;0;C2&gt;0)','VERDADEIRO se pelo menos um teste for verdadeiro.','Lógica'],
+ ['NÃO','=NÃO(B2&gt;0)','Inverte VERDADEIRO e FALSO.','Lógica'],
+ ['SEERRO','=SEERRO(A2/B2;0)','Mostra um valor alternativo quando a fórmula dá erro.','Lógica'],
+ ['PROCV','=PROCV(F1;A2:C9;2;FALSO)','Procura na 1ª coluna e devolve a coluna indicada.','Busca'],
+ ['PROCX','=PROCX(F1;B2:B9;A2:A9;"Não achei")','Procura em qualquer direção, com mensagem opcional se não achar.','Busca'],
+ ['CONCAT','=CONCAT(A2;" ";B2)','Junta textos. Também dá para usar &amp;.','Texto'],
+ ['MAIÚSCULA','=MAIÚSCULA(A2)','Deixa o texto todo em maiúsculas.','Texto'],
+ ['MINÚSCULA','=MINÚSCULA(A2)','Deixa o texto todo em minúsculas.','Texto'],
+ ['PRI.MAIÚSCULA','=PRI.MAIÚSCULA(A2)','Primeira Letra De Cada Palavra Maiúscula.','Texto'],
+ ['ARRUMAR','=ARRUMAR(A2)','Remove espaços sobrando.','Texto'],
+ ['ESQUERDA / DIREITA','=ESQUERDA(A2;3)','Pega n caracteres do começo (ou do fim).','Texto'],
+ ['EXT.TEXTO','=EXT.TEXTO(A2;2;3)','Pega n caracteres a partir de uma posição.','Texto'],
+ ['NÚM.CARACT','=NÚM.CARACT(A2)','Quantidade de caracteres do texto.','Texto'],
+ ['ARRED','=ARRED(B2;2)','Arredonda para n casas decimais.','Matemática'],
+ ['ABS','=ABS(B2)','Valor absoluto (sem sinal).','Matemática'],
+ ['RAIZ','=RAIZ(B2)','Raiz quadrada.','Matemática'],
+ ['HOJE','=HOJE()','Data de hoje.','Datas']
+];
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+const KEY='celulazero.v1';
+let ST={name:'',done:{},xp:0,qok:{},sand:{}};
+try{Object.assign(ST,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}};
+const unlocked=i=>i===0||!!ST.done[LESSONS[i-1].id]||!!ST.done[LESSONS[i].id];
+
+/* =========================================================
+   NAVEGAÇÃO
+   ========================================================= */
+let sandSheet=null;
+function go(id){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('on',x.id===id));
+  const nav=$('#nav');nav.classList.toggle('on',['home','sand','funcs'].includes(id));
+  nav.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.go===id));
+  if(id==='home')renderHome();
+  if(id==='sand'&&!sandSheet)sandSheet=Sheet($('#sandSheet'),{rows:30,cols:10,data:ST.sand,onChange:s=>{ST.sand=s.data();save()}});
+  if(id==='funcs')renderFuncs();
+  window.scrollTo(0,0);
+}
+$('#nav').addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(b.dataset.go)});
+
+/* HOME */
+function renderHome(){
+  const total=LESSONS.length,dn=LESSONS.filter(l=>ST.done[l.id]).length,pct=Math.round(dn/total*100);
+  $('#hiName').textContent=ST.name?`Olá, ${ST.name}! 👋`:'Olá! 👋';
+  $('#ring').style.setProperty('--p',pct);$('#ringTxt').textContent=pct+'%';
+  $('#xpVal').textContent=ST.xp;
+  const ni=LESSONS.findIndex(l=>!ST.done[l.id]),cb=$('#contBtn');
+  if(ni<0){cb.innerHTML='<small>Trilha completa</small><b>Revisar desde o início</b>';cb.onclick=()=>openLesson(0)}
+  else{cb.innerHTML=`<small>${dn?'Continuar':'Começar'} · Lição ${ni+1}</small><b>${LESSONS[ni].t}</b>`;cb.onclick=()=>openLesson(ni)}
+  let h=ni<0?'<div class="badge"><span style="font-size:30px">🏆</span>Você concluiu a trilha inteira. Agora é praticar na Planilha livre!</div>':'';
+  MODS.forEach((m,mi)=>{
+    const md=m.L.filter(l=>ST.done[l.id]).length;
+    h+=`<div class="mod"><div class="modh"><span class="mi">${m.e}</span><div><small>Módulo ${mi+1}</small><b>${m.t}</b></div><span class="mc">${md}/${m.L.length}</span></div>`;
+    m.L.forEach(l=>{
+      const i=LESSONS.indexOf(l),d=ST.done[l.id],u=unlocked(i),st=d?'done':u?'open':'lock';
+      h+=`<button class="les ${st}" data-i="${i}"><span class="ld">${d?'✓':u?i+1:'🔒'}</span><span class="lt"><b>${l.t}</b><small>${l.d}</small></span><span class="la">›</span></button>`;
+    });
+    h+='</div>';
+  });
+  $('#mods').innerHTML=h;
+}
+$('#mods').addEventListener('click',e=>{const b=e.target.closest('.les');if(!b)return;const i=+b.dataset.i;if(!unlocked(i)){toast('🔒 Conclua a lição anterior primeiro');return}openLesson(i)});
+
+/* LESSON */
+let cur=null;
+function openLesson(i){
+  const L=LESSONS[i];
+  cur={i,L,ph:0,phases:[...L.steps.map(s=>({k:'step',s})),...(L.practice?[{k:'prac'}]:[]),...L.quiz.map(q=>({k:'quiz',q})),{k:'done'}]};
+  $('#lsTitle').textContent=`Lição ${i+1} · ${L.t}`;
+  go('lesson');renderPhase();
+}
+function renderPhase(){
+  const P=cur.ph,ph=cur.phases[P],n=cur.phases.length,B=$('#lsBody'),btn=$('#lsNext');
+  $('#lsBar').style.width=(P/(n-1)*100)+'%';
+  btn.disabled=false;btn.textContent='Continuar';
+  B.classList.remove('anim');void B.offsetWidth;B.classList.add('anim');
+  if(ph.k==='step'){
+    const s=ph.s,k=cur.L.steps.indexOf(s);
+    B.innerHTML=`<div class="stepc"><div class="se">${s.e}</div><div class="sk">Passo ${k+1} de ${cur.L.steps.length}</div><h2>${s.h}</h2><p>${s.b}</p>${s.x?`<div class="ex">💡 ${s.x}</div>`:''}</div>`;
+    if(k===cur.L.steps.length-1&&cur.L.practice)btn.textContent='Praticar →';
+  }
+  else if(ph.k==='prac')practice(B,btn);
+  else if(ph.k==='quiz')quiz(B,btn,ph.q);
+  else done(B,btn);
+  window.scrollTo(0,0);
+}
+function practice(B,btn){
+  const pr=cur.L.practice;
+  B.innerHTML=`<div class="task"><span class="tag">PRÁTICA</span><p>${pr.intro}</p><ul class="goals">${pr.goals.map((g,i)=>`<li data-g="${i}"><i></i><span>${g.t}</span></li>`).join('')}</ul><div class="hint" hidden></div></div><div id="pSheet"></div><div class="prow"><button id="bHint">💡 Dica</button><button id="bAns">🔑 Resposta</button><button id="bReset">↺ Recomeçar</button></div>`;
+  const got=new Set();let all=false;
+  const chk=s=>{
+    pr.goals.forEach((g,i)=>{if(got.has(i))return;let ok=false;try{ok=g.ok(s)}catch(e){}if(ok){got.add(i);B.querySelector(`li[data-g="${i}"]`).classList.add('ok');if(navigator.vibrate)navigator.vibrate(15)}});
+    const now=got.size===pr.goals.length;btn.disabled=!now;
+    if(now&&!all){all=true;toast('Mandou bem! ✅');btn.textContent='Continuar →'}
+  };
+  const sh=Sheet(B.querySelector('#pSheet'),{...pr,onChange:chk,onSelect:chk});
+  btn.disabled=true;chk(sh);
+  const hb=B.querySelector('.hint');
+  B.querySelector('#bHint').onclick=()=>{hb.hidden=false;hb.innerHTML='💡 '+pr.hint};
+  B.querySelector('#bAns').onclick=()=>{hb.hidden=false;hb.innerHTML='🔑 '+pr.ans};
+  B.querySelector('#bReset').onclick=()=>{sh.reset();got.clear();all=false;B.querySelectorAll('.goals li').forEach(li=>li.classList.remove('ok'));chk(sh)};
+}
+function quiz(B,btn,q){
+  const qi=cur.L.quiz.indexOf(q),qid=cur.L.id+'#'+qi;
+  B.innerHTML=`<div class="quiz"><span class="tag">QUIZ ${cur.L.quiz.length>1?(qi+1)+'/'+cur.L.quiz.length:''}</span><h2>${q.q}</h2><div class="opts">${q.o.map((o,i)=>`<button class="opt" data-i="${i}"><span>${'ABCD'[i]}</span><div>${o.startsWith('=')?`<code>${esc(o)}</code>`:esc(o)}</div></button>`).join('')}</div><div class="qx" hidden></div></div>`;
+  btn.disabled=true;let answered=false;
+  B.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    if(answered)return;answered=true;
+    const i=+b.dataset.i,ok=i===q.a;
+    b.classList.add(ok?'right':'wrong');
+    if(!ok)B.querySelector(`.opt[data-i="${q.a}"]`).classList.add('right');
+    const x=B.querySelector('.qx');x.hidden=false;x.className='qx '+(ok?'ok':'no');
+    x.innerHTML=(ok?'<b>Certo! 🎉</b> ':'<b>Quase!</b> ')+(q.x||(ok?'':'Veja a alternativa marcada em verde.'));
+    if(ok&&!ST.qok[qid]){ST.qok[qid]=1;ST.xp+=10;save();toast('+10 XP ⭐')}
+    btn.disabled=false;
+  });
+}
+function done(B,btn){
+  const first=!ST.done[cur.L.id];
+  if(first){ST.done[cur.L.id]=1;ST.xp+=30;save()}
+  const last=cur.i===LESSONS.length-1;
+  B.innerHTML=`<div class="donec"><div class="trophy">${last?'🏆':'🎉'}</div><h2>Lição concluída!</h2><p>${cur.L.t}</p>${first?'<div class="xpgain">+30 XP</div>':''}${last?'<p style="margin-top:16px;color:var(--ink)">Você terminou a trilha inteira. Agora você manda no Excel! 💚</p>':''}<br><button class="ghost" id="bBack">Voltar à trilha</button></div>`;
+  B.querySelector('#bBack').onclick=()=>go('home');
+  btn.textContent=last?'Ir para a Planilha livre':'Próxima lição →';
+  confetti();
+}
+$('#lsNext').onclick=()=>{
+  const ph=cur.phases[cur.ph];
+  if(ph.k==='done'){if(cur.i+1<LESSONS.length)openLesson(cur.i+1);else go('sand');return}
+  cur.ph++;renderPhase();
+};
+$('#lsClose').onclick=()=>go('home');
+
+function confetti(){
+  const c=document.createElement('div');c.className='conf';
+  const col=['#33c481','#107c41','#ffc94a','#4fc3f7','#ff7a7a','#fff'];
+  for(let i=0;i<46;i++){const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.background=col[i%col.length];p.style.animationDuration=(1.6+Math.random()*1.6)+'s';p.style.animationDelay=(Math.random()*.4)+'s';p.style.transform=`rotate(${Math.random()*360}deg)`;c.appendChild(p)}
+  document.body.appendChild(c);setTimeout(()=>c.remove(),3800);
+}
+
+/* FUNCS */
+function renderFuncs(){
+  const q=XL.norm($('#fq').value.trim());
+  const list=FUNCS.filter(f=>!q||XL.norm(f[0]+' '+f[2]+' '+f[3]).includes(q));
+  $('#flist').innerHTML=list.length?list.map(f=>`<div class="fcard"><h3>${f[0]}<small>${f[3]}</small></h3><div class="syn">${f[1]}</div><p>${f[2]}</p></div>`).join(''):'<p class="sandtip">Nenhuma função encontrada.</p>';
+}
+$('#fq').addEventListener('input',renderFuncs);
+
+/* SANDBOX */
+$('#sandClr').onclick=()=>{if(!sandSheet)return;if(confirm('Apagar tudo da planilha livre?')){sandSheet.clear();ST.sand={};save();toast('Planilha limpa')}};
+
+/* PERFIL */
+$('#xpBtn').onclick=()=>{$('#pfXp').textContent=ST.xp;$('#pfDone').textContent=LESSONS.filter(l=>ST.done[l.id]).length+'/'+LESSONS.length;$('#pfName').value=ST.name;$('#ov').classList.add('on')};
+$('#ov').addEventListener('click',e=>{if(e.target.id==='ov')$('#ov').classList.remove('on')});
+$('#pfSave').onclick=()=>{ST.name=$('#pfName').value.trim();save();$('#ov').classList.remove('on');renderHome();toast('Salvo ✓')};
+$('#pfReset').onclick=()=>{if(confirm('Apagar todo o progresso? Isso não pode ser desfeito.')){ST.done={};ST.xp=0;ST.qok={};save();$('#ov').classList.remove('on');renderHome();toast('Progresso apagado')}};
+
+/* START */
+$('#nm').value=ST.name||'';
+if(ST.name)$('#enter').textContent=`Entrar como ${ST.name}`;
+$('#nm').addEventListener('input',()=>{const v=$('#nm').value.trim();$('#enter').textContent=v?`Entrar como ${v}`:'Entrar'});
+$('#nm').addEventListener('keydown',e=>{if(e.key==='Enter')$('#enter').click()});
+$('#enter').onclick=()=>{ST.name=$('#nm').value.trim();save();$('#nm').blur();go('home')};
+
+/* SPLASH */
+(function(){
+  const sp=$('#splash'),g=$('#spGrid'),cw=46,chh=30;
+  const C=Math.ceil(innerWidth/cw)+1,R=Math.ceil(innerHeight/chh)+1;
+  g.style.gridTemplateColumns=`repeat(${C},${cw-1}px)`;
+  const sym=['Σ','=','%','$','fx','A1','123',';','#'];let h='';
+  for(let r=0;r<R;r++)for(let c=0;c<C;c++)h+=`<i style="--d:${(r+c)*55}ms">${Math.random()<.11?sym[(Math.random()*sym.length)|0]:''}</i>`;
+  g.innerHTML=h;
+  const txt='=APRENDER("Excel")',el=$('#spText');let k=0,ended=false;
+  const end=()=>{if(ended)return;ended=true;sp.classList.add('out');setTimeout(()=>sp.remove(),700)};
+  setTimeout(function type(){
+    if(ended)return;
+    if(k<=txt.length){el.textContent=txt.slice(0,k++);setTimeout(type,60)}
+    else{$('#spRes').classList.add('on');setTimeout(end,1300)}
+  },900);
+  sp.addEventListener('click',end);
+})();
+
+/* PWA */
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
